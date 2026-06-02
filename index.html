@@ -430,9 +430,10 @@ async function loadGallery() {
   document.getElementById('gallery-grid').style.display = 'none';
   document.getElementById('gallery-empty').style.display = 'none';
 
-  gasData = await fetchFromGAS();
-  applyGalleryFilter();
+  const result = await fetchFromGAS();
+  gasData = result;
   document.getElementById('gallery-loading').style.display = 'none';
+  applyGalleryFilter();
 }
 
 function applyGalleryFilter() {
