@@ -61,20 +61,24 @@
   .gallery-search { flex: 1; min-width: 160px; border: 1.5px solid #d1d9e0; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; }
   .gallery-search:focus { outline: none; border-color: #028090; }
   .class-filter { border: 1.5px solid #d1d9e0; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; background: #fff; }
+  .gallery-meta { display: flex; align-items: center; gap: 10px; }
   .gallery-count { font-size: 12px; color: #6b7280; }
+  .reload-btn { font-size: 12px; color: #028090; background: none; border: 1px solid #028090; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+  .reload-btn:hover { background: #e6f7f8; }
   .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
   .student-card { background: #fff; border: 1.5px solid #d1d9e0; border-radius: 12px; overflow: hidden; }
   .student-card-header { background: #1E2761; color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
   .student-card-name { font-size: 14px; font-weight: 700; }
-  .student-card-id { font-size: 11px; color: rgba(255,255,255,.6); }
+  .student-card-id { font-size: 11px; color: rgba(255,255,255,.65); }
   .student-card-body { padding: 14px 16px; }
   .card-section { margin-bottom: 10px; }
   .card-section:last-child { margin-bottom: 0; }
-  .card-section-label { font-size: 10px; font-weight: 700; letter-spacing: .05em; color: #028090; margin-bottom: 4px; text-transform: uppercase; }
+  .card-section-label { font-size: 10px; font-weight: 700; letter-spacing: .05em; color: #028090; margin-bottom: 4px; }
   .card-section-text { font-size: 12px; color: #374151; line-height: 1.6; }
   .ai-tags { display: flex; flex-wrap: wrap; gap: 4px; }
   .ai-tag { font-size: 11px; background: #e6f1fb; color: #0c447c; padding: 2px 8px; border-radius: 20px; }
   .gallery-empty { text-align: center; padding: 48px 0; color: #9ca3af; font-size: 13px; }
+  .loading { text-align: center; padding: 32px 0; color: #9ca3af; font-size: 13px; }
 
   /* ===== 管理画面 ===== */
   #view-admin { display: none; }
@@ -106,10 +110,8 @@
   td { padding: 9px 10px; border-bottom: 1px solid #f3f4f6; vertical-align: top; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1a202c; }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: #f9fafb; }
-  .col-id   { width: 70px; } .col-name { width: 80px; } .col-cls { width: 65px; }
-  .col-ai1  { width: 110px; } .col-q { width: 130px; } .col-dt { width: 90px; } .col-act { width: 36px; }
-
-  .badge-new { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 20px; background: #fef3c7; color: #92400e; margin-left: 4px; vertical-align: middle; }
+  .col-id { width: 75px; } .col-name { width: 80px; } .col-cls { width: 65px; }
+  .col-ai1 { width: 110px; } .col-q { width: 130px; } .col-dt { width: 88px; } .col-act { width: 36px; }
   .expand-btn { background: none; border: none; cursor: pointer; color: #9ca3af; font-size: 16px; line-height: 1; padding: 0; }
   .expand-btn:hover { color: #374151; }
   .detail-row { display: none; }
@@ -143,13 +145,13 @@
     <button class="tab" onclick="showTab('admin', this)">📊 管理</button>
   </div>
 
-  <!-- ====== 生徒フォーム ====== -->
+  <!-- 生徒フォーム -->
   <div id="view-student">
     <div class="card">
       <div class="id-row">
         <div class="field">
           <label>学年 <span class="req">*</span></label>
-          <input type="text" id="f-grade" placeholder="例：1" style="max-width:100%">
+          <input type="text" id="f-grade" placeholder="例：1">
         </div>
         <div class="field">
           <label>クラス <span class="req">*</span></label>
@@ -210,25 +212,29 @@
         <button class="submit-btn" id="submit-btn" onclick="submitForm()">✈ 提出する</button>
         <button class="clear-btn" onclick="clearForm()">クリア</button>
       </div>
-      <div class="msg success" id="msg-success">✅ <strong>提出完了！</strong> 「みんなの回答」タブで全員の回答が見られます。</div>
+      <div class="msg success" id="msg-success">✅ <strong>提出完了！</strong>「みんなの回答」タブで全員の回答が見られます。</div>
       <div class="msg error"   id="msg-error">❌ 送信に失敗しました。時間をおいてもう一度お試しください。</div>
     </div>
   </div>
 
-  <!-- ====== みんなの回答 ====== -->
+  <!-- みんなの回答 -->
   <div id="view-gallery">
     <div class="gallery-filter">
-      <input type="text" class="gallery-search" id="gallery-search" placeholder="🔍 名前・キーワードで検索" oninput="renderGallery()">
-      <select class="class-filter" id="class-filter" onchange="renderGallery()">
+      <input type="text" class="gallery-search" id="gallery-search" placeholder="🔍 名前・キーワードで検索" oninput="applyGalleryFilter()">
+      <select class="class-filter" id="class-filter" onchange="applyGalleryFilter()">
         <option value="">全クラス</option>
       </select>
-      <span class="gallery-count" id="gallery-count"></span>
+      <div class="gallery-meta">
+        <span class="gallery-count" id="gallery-count"></span>
+        <button class="reload-btn" onclick="loadGallery()">↻ 更新</button>
+      </div>
     </div>
-    <div class="gallery-grid" id="gallery-grid"></div>
+    <div id="gallery-loading" class="loading">読み込み中...</div>
+    <div class="gallery-grid" id="gallery-grid" style="display:none"></div>
     <div class="gallery-empty" id="gallery-empty" style="display:none">まだ回答がありません</div>
   </div>
 
-  <!-- ====== 管理画面 ====== -->
+  <!-- 管理画面 -->
   <div id="view-admin">
     <div id="admin-lock">
       <div class="pw-screen">
@@ -245,7 +251,7 @@
       <div class="filter-row">
         <input type="text" class="search-input" id="search-box" placeholder="🔍 氏名・キーワードで絞り込み" oninput="renderTable()">
         <button class="dl-btn" onclick="exportCSV()">⬇ CSV</button>
-        <button class="dl-btn danger" onclick="clearAll()">🗑 全削除</button>
+        <button class="dl-btn" onclick="loadDashboard()">↻ 更新</button>
       </div>
       <div class="table-wrap">
         <table>
@@ -269,10 +275,13 @@
 
 </div>
 <script>
-const GAS_URL  = 'ここにGASのURLを貼り付ける';
+// ★https://script.google.com/macros/s/AKfycbzqiRxH0TAWTERknWymL7vOIq6xmnj4HnxNo_HDPKHXq2rwXORVuOUNK2CGwMLQFVyT/exec
+const GAS_URL  = 'https://script.google.com/macros/s/AKfycbzqiRxH0TAWTERknWymL7vOIq6xmnj4HnxNo_HDPKHXq2rwXORVuOUNK2CGwMLQFVyT/exec';
 const ADMIN_PW = 'okojin2026';
 const LS_KEY   = 'okojin_ws2026';
-const LS_SEEN  = 'okojin_ws2026_seen';
+
+// GASから取得したデータをキャッシュ
+let gasData = [];
 
 // ============ タブ切替 ============
 function showTab(t, btn) {
@@ -281,7 +290,7 @@ function showTab(t, btn) {
     document.getElementById('view-' + id).style.display = id === t ? '' : 'none';
   });
   btn.classList.add('active');
-  if (t === 'gallery') renderGallery();
+  if (t === 'gallery') loadGallery();
   if (t === 'admin') {
     document.getElementById('admin-lock').style.display = '';
     document.getElementById('admin-content').style.display = 'none';
@@ -298,14 +307,22 @@ document.getElementById('f-future').addEventListener('input', function () {
   el.className = 'char-count' + (n >= 100 && n <= 200 ? ' ok' : n > 200 ? ' over' : '');
 });
 
-// ============ ストレージ ============
+// ============ ローカルストレージ（自分の入力の読込専用）============
 function loadLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch { return []; } }
 function saveLocal(d) { localStorage.setItem(LS_KEY, JSON.stringify(d)); }
-function loadSeen()   { try { return JSON.parse(localStorage.getItem(LS_SEEN) || '[]'); } catch { return []; } }
-function saveSeen(s)  { localStorage.setItem(LS_SEEN, JSON.stringify(s)); }
+function makeId(grade, cls, num) { return (grade + '-' + cls + '-' + num).trim(); }
 
-function makeId(grade, cls, num) {
-  return (grade + '-' + cls + '-' + num).trim();
+// ============ GASからデータ取得 ============
+async function fetchFromGAS() {
+  if (!GAS_URL || GAS_URL === 'https://script.google.com/macros/s/AKfycbzqiRxH0TAWTERknWymL7vOIq6xmnj4HnxNo_HDPKHXq2rwXORVuOUNK2CGwMLQFVyT/exec') return [];
+  try {
+    const res = await fetch(GAS_URL);
+    const json = await res.json();
+    return Array.isArray(json) ? json : [];
+  } catch (e) {
+    console.error('GAS取得エラー:', e);
+    return [];
+  }
 }
 
 // ============ フォーム送信 ============
@@ -331,15 +348,17 @@ async function submitForm() {
   const now = new Date();
   const dt  = now.toLocaleDateString('ja-JP') + ' ' + now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
   const id  = makeId(grade, cls, num);
-  const record = { id, grade, cls, num, name, ai1, ai2, ai3, future, question, dt, ts: Date.now() };
+  const record = { id, grade, cls, num, name, ai1, ai2, ai3, future, question, dt };
 
+  // ローカルにも保存（前回読込用）
   const local = loadLocal();
   const idx = local.findIndex(r => r.id === id);
   if (idx >= 0) local[idx] = record; else local.push(record);
   saveLocal(local);
 
+  // GASへ送信
   let gasOk = false;
-  if (GAS_URL && GAS_URL !== 'ここにGASのURLを貼り付ける') {
+  if (GAS_URL && GAS_URL !== 'https://script.google.com/macros/s/AKfycbzqiRxH0TAWTERknWymL7vOIq6xmnj4HnxNo_HDPKHXq2rwXORVuOUNK2CGwMLQFVyT/exec') {
     try {
       const fd = new FormData();
       Object.entries(record).forEach(([k, v]) => fd.append(k, v));
@@ -351,8 +370,12 @@ async function submitForm() {
   btn.disabled = false; btn.textContent = '✈ 提出する';
   const suc = document.getElementById('msg-success');
   const err = document.getElementById('msg-error');
-  if (gasOk) { suc.style.display = 'block'; err.style.display = 'none'; setTimeout(() => { suc.style.display = 'none'; }, 5000); }
-  else        { err.style.display = 'block'; suc.style.display = 'none'; }
+  if (gasOk) {
+    suc.style.display = 'block'; err.style.display = 'none';
+    setTimeout(() => { suc.style.display = 'none'; }, 5000);
+  } else {
+    err.style.display = 'block'; suc.style.display = 'none';
+  }
 }
 
 // ============ クリア ============
@@ -363,7 +386,7 @@ function clearForm() {
   document.getElementById('char-count').className = 'char-count';
 }
 
-// ============ 前回読込 ============
+// ============ 前回読込（ローカルから） ============
 function lookupStudent() {
   const grade = document.getElementById('f-grade').value.trim();
   const cls   = document.getElementById('f-class').value.trim();
@@ -386,29 +409,41 @@ function lookupStudent() {
   } else { alert('入力が見つかりませんでした。新規として入力してください。'); }
 }
 
-// ============ みんなの回答 ============
-function renderGallery() {
-  const data = loadLocal();
-  const q    = (document.getElementById('gallery-search').value || '').toLowerCase();
-  const cls  = document.getElementById('class-filter').value;
+// ============ みんなの回答（GASから取得） ============
+async function loadGallery() {
+  document.getElementById('gallery-loading').style.display = '';
+  document.getElementById('gallery-grid').style.display = 'none';
+  document.getElementById('gallery-empty').style.display = 'none';
 
-  // クラスフィルター選択肢を更新
-  const classes = [...new Set(data.map(r => r.grade + '年' + r.cls + '組').filter(Boolean))].sort();
+  gasData = await fetchFromGAS();
+  applyGalleryFilter();
+  document.getElementById('gallery-loading').style.display = 'none';
+}
+
+function applyGalleryFilter() {
+  const q   = (document.getElementById('gallery-search').value || '').toLowerCase();
+  const cls = document.getElementById('class-filter').value;
+
+  // クラスフィルター更新
+  const classes = [...new Set(gasData.map(r => r.grade + '年' + r.cls + '組').filter(Boolean))].sort();
   const sel = document.getElementById('class-filter');
   const cur = sel.value;
-  sel.innerHTML = '<option value="">全クラス</option>' + classes.map(c => `<option value="${c}" ${c === cur ? 'selected' : ''}>${c}</option>`).join('');
+  sel.innerHTML = '<option value="">全クラス</option>' + classes.map(c =>
+    `<option value="${c}" ${c === cur ? 'selected' : ''}>${c}</option>`).join('');
 
-  let filtered = data;
-  if (cls)  filtered = filtered.filter(r => (r.grade + '年' + r.cls + '組') === cls);
-  if (q)    filtered = filtered.filter(r => JSON.stringify(r).toLowerCase().includes(q));
-  filtered = filtered.slice().sort((a, b) => a.id.localeCompare(b.id));
+  let filtered = gasData;
+  if (cls) filtered = filtered.filter(r => (r.grade + '年' + r.cls + '組') === cls);
+  if (q)   filtered = filtered.filter(r => JSON.stringify(r).toLowerCase().includes(q));
+  filtered = filtered.slice().sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
   const grid  = document.getElementById('gallery-grid');
   const empty = document.getElementById('gallery-empty');
   document.getElementById('gallery-count').textContent = filtered.length + '件';
 
-  if (!filtered.length) { grid.innerHTML = ''; empty.style.display = ''; return; }
-  empty.style.display = 'none';
+  if (!filtered.length) {
+    grid.style.display = 'none'; empty.style.display = ''; return;
+  }
+  empty.style.display = 'none'; grid.style.display = '';
 
   grid.innerHTML = filtered.map(r => `
     <div class="student-card">
@@ -425,11 +460,11 @@ function renderGallery() {
         </div>
         <div class="card-section">
           <div class="card-section-label">もしAIが進化したら</div>
-          <div class="card-section-text">${esc(r.future || '').replace(/\n/g,'<br>')}</div>
+          <div class="card-section-text">${esc(r.future||'').replace(/\n/g,'<br>')}</div>
         </div>
         <div class="card-section">
           <div class="card-section-label">学校への問い</div>
-          <div class="card-section-text">${esc(r.question || '').replace(/\n/g,'<br>')}</div>
+          <div class="card-section-text">${esc(r.question||'').replace(/\n/g,'<br>')}</div>
         </div>
       </div>
     </div>`).join('');
@@ -440,82 +475,65 @@ function checkPw() {
   if (document.getElementById('pw-input').value === ADMIN_PW) {
     document.getElementById('admin-lock').style.display = 'none';
     document.getElementById('admin-content').style.display = '';
-    renderDashboard();
+    loadDashboard();
   } else { document.getElementById('pw-err').style.display = 'block'; }
 }
 
-function renderDashboard() {
-  const data  = loadLocal();
-  const seen  = loadSeen();
+async function loadDashboard() {
+  gasData = await fetchFromGAS();
   const today = new Date().toLocaleDateString('ja-JP');
   document.getElementById('stats').innerHTML = `
-    <div class="stat"><div class="stat-num">${data.length}</div><div class="stat-label">提出数（合計）</div></div>
-    <div class="stat"><div class="stat-num">${data.filter(r => r.dt.startsWith(today)).length}</div><div class="stat-label">本日の提出</div></div>
-    <div class="stat"><div class="stat-num">${data.filter(r => !seen.includes(r.ts)).length}</div><div class="stat-label">未確認</div></div>`;
+    <div class="stat"><div class="stat-num">${gasData.length}</div><div class="stat-label">提出数（合計）</div></div>
+    <div class="stat"><div class="stat-num">${gasData.filter(r => String(r.dt).startsWith(today)).length}</div><div class="stat-label">本日の提出</div></div>
+    <div class="stat"><div class="stat-num">${gasData.length}</div><div class="stat-label">スプレッドシート反映済</div></div>`;
   renderTable();
 }
 
 function renderTable() {
-  const data = loadLocal();
-  const seen = loadSeen();
   const q = (document.getElementById('search-box') || {}).value || '';
-  const filtered = q ? data.filter(r => JSON.stringify(r).toLowerCase().includes(q.toLowerCase())) : data;
+  const filtered = q ? gasData.filter(r => JSON.stringify(r).toLowerCase().includes(q.toLowerCase())) : gasData;
   const tbody = document.getElementById('table-body');
   const empty = document.getElementById('empty-state');
   if (!filtered.length) { tbody.innerHTML = ''; empty.style.display = ''; return; }
   empty.style.display = 'none';
-  tbody.innerHTML = filtered.slice().reverse().map(r => {
-    const isNew = !seen.includes(r.ts);
-    return `<tr>
-      <td class="col-id">${esc(r.id || '')}</td>
-      <td class="col-name" title="${esc(r.name)}">${esc(r.name)}${isNew ? '<span class="badge-new">NEW</span>' : ''}</td>
-      <td class="col-cls">${esc(r.grade || '')}年${esc(r.cls || '')}組</td>
-      <td class="col-ai1" title="${esc(r.ai1 || '')}">${esc(r.ai1 || '—')}</td>
-      <td class="col-q" title="${esc(r.question || '')}">${esc((r.question||'').substring(0,35)+(r.question&&r.question.length>35?'…':''))}</td>
-      <td class="col-dt">${esc(r.dt)}</td>
-      <td class="col-act" style="text-align:center"><button class="expand-btn" onclick="toggleDetail('${r.ts}',this)">▾</button></td>
+  tbody.innerHTML = filtered.slice().reverse().map((r, i) => `
+    <tr>
+      <td class="col-id">${esc(r.id||'')}</td>
+      <td class="col-name" title="${esc(r.name)}">${esc(r.name)}</td>
+      <td class="col-cls">${esc(r.grade||'')}年${esc(r.cls||'')}組</td>
+      <td class="col-ai1" title="${esc(r.ai1||'')}">${esc(r.ai1||'—')}</td>
+      <td class="col-q" title="${esc(r.question||'')}">${esc((r.question||'').substring(0,35)+((r.question||'').length>35?'…':''))}</td>
+      <td class="col-dt">${esc(r.dt||'')}</td>
+      <td class="col-act" style="text-align:center"><button class="expand-btn" onclick="toggleDetail(${i},this)">▾</button></td>
     </tr>
-    <tr class="detail-row" id="detail-${r.ts}">
+    <tr class="detail-row" id="detail-${i}">
       <td class="detail-cell" colspan="7">
         <strong>AI場面①</strong>　${esc(r.ai1||'—')}<br>
         <strong>AI場面②</strong>　${esc(r.ai2||'—')}<br>
         <strong>AI場面③</strong>　${esc(r.ai3||'—')}<br><br>
         <strong>もしAIが進化したら</strong><br>${esc(r.future||'').replace(/\n/g,'<br>')}<br><br>
         <strong>学校への問い</strong><br>${esc(r.question||'').replace(/\n/g,'<br>')}
-        <button class="del-btn" onclick="deleteRecord('${r.id}')">🗑 この提出を削除</button>
       </td>
-    </tr>`;
-  }).join('');
-  const newTs = filtered.filter(r => !seen.includes(r.ts)).map(r => r.ts);
-  if (newTs.length) saveSeen([...seen, ...newTs]);
+    </tr>`).join('');
 }
 
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function toggleDetail(ts, btn) {
-  const row = document.getElementById('detail-' + ts);
+function toggleDetail(i, btn) {
+  const row = document.getElementById('detail-' + i);
   const isOpen = row.classList.contains('open');
   document.querySelectorAll('.detail-row.open').forEach(r => r.classList.remove('open'));
   document.querySelectorAll('.expand-btn').forEach(b => b.textContent = '▾');
   if (!isOpen) { row.classList.add('open'); btn.textContent = '▴'; }
 }
 
-function deleteRecord(id) {
-  if (!confirm('この提出を削除しますか？')) return;
-  saveLocal(loadLocal().filter(r => r.id !== id));
-  renderDashboard();
-}
-
-function clearAll() {
-  if (!confirm('全データを削除しますか？この操作は元に戻せません。')) return;
-  saveLocal([]); renderDashboard();
-}
-
 function exportCSV() {
-  const data = loadLocal();
-  if (!data.length) { alert('データがありません。'); return; }
+  if (!gasData.length) { alert('データがありません。'); return; }
   const header = ['出席番号','学年','クラス','番号','氏名','AI場面①','AI場面②','AI場面③','AIが進化したら','学校への問い','提出日時'];
-  const rows = data.map(r => [r.id,r.grade,r.cls,r.num,r.name,r.ai1||'',r.ai2||'',r.ai3||'',r.future||'',r.question||'',r.dt].map(v => `"${String(v).replace(/"/g,'""')}"`));
+  const rows = gasData.map(r =>
+    [r.id,r.grade,r.cls,r.num,r.name,r.ai1||'',r.ai2||'',r.ai3||'',r.future||'',r.question||'',r.dt]
+    .map(v => `"${String(v).replace(/"/g,'""')}"`)
+  );
   const csv = [header,...rows].map(r => r.join(',')).join('\n');
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
   const a = document.createElement('a');
