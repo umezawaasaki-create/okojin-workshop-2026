@@ -314,11 +314,21 @@ function makeId(grade, cls, num) { return (grade + '-' + cls + '-' + num).trim()
 
 // ============ GASからデータ取得 ============
 async function fetchFromGAS() {
-  if (!GAS_URL || GAS_URL === 'https://script.google.com/macros/s/AKfycbzqiRxH0TAWTERknWymL7vOIq6xmnj4HnxNo_HDPKHXq2rwXORVuOUNK2CGwMLQFVyT/exec') return [];
+  if (!GAS_URL) return [];
   try {
-    const res = await fetch(GAS_URL);
-    const json = await res.json();
-    return Array.isArray(json) ? json : [];
+    return await new Promise((resolve) => {
+      const cb = 'cb_' + Date.now();
+      const script = document.createElement('script');
+      window[cb] = (data) => {
+        delete window[cb];
+        document.body.removeChild(script);
+        resolve(Array.isArray(data) ? data : []);
+      };
+      script.onerror = () => { delete window[cb]; resolve([]); };
+      script.src = GAS_URL + '?callback=' + cb;
+      document.body.appendChild(script);
+      setTimeout(() => { if (window[cb]) { delete window[cb]; resolve([]); } }, 10000);
+    });
   } catch (e) {
     console.error('GAS取得エラー:', e);
     return [];
