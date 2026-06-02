@@ -313,29 +313,30 @@ function saveLocal(d) { localStorage.setItem(LS_KEY, JSON.stringify(d)); }
 function makeId(grade, cls, num) { return (grade + '-' + cls + '-' + num).trim(); }
 
 // ============ GASからデータ取得 ============
-async function fetchFromGAS() {
-  if (!GAS_URL) return [];
-  return new Promise((resolve) => {
-    const cb = 'gasCallback_' + Date.now();
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    window[cb] = function(data) {
+function fetchFromGAS() {
+  return new Promise(function(resolve) {
+    var cbName = 'cb' + Date.now();
+    var done = false;
+
+    window[cbName] = function(data) {
+      done = true;
       resolve(Array.isArray(data) ? data : []);
-      delete window[cb];
-      if (script.parentNode) script.parentNode.removeChild(script);
+      try { delete window[cbName]; } catch(e) {}
+      var el = document.getElementById('jsonp-' + cbName);
+      if (el) el.parentNode.removeChild(el);
     };
-    script.onerror = function() {
-      resolve([]);
-      delete window[cb];
+
+    var s = document.createElement('script');
+    s.id = 'jsonp-' + cbName;
+    s.src = GAS_URL + '?callback=' + cbName + '&_=' + Date.now();
+    s.onerror = function() {
+      if (!done) { done = true; resolve([]); }
     };
-    script.src = GAS_URL + '?callback=' + cb + '&t=' + Date.now();
-    document.head.appendChild(script);
+    document.body.appendChild(s);
+
     setTimeout(function() {
-      if (window[cb]) {
-        resolve([]);
-        delete window[cb];
-      }
-    }, 15000);
+      if (!done) { done = true; resolve([]); }
+    }, 10000);
   });
 }
 
