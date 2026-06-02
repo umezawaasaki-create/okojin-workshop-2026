@@ -358,12 +358,17 @@ async function submitForm() {
 
   // GASへ送信
   let gasOk = false;
-  if (GAS_URL && GAS_URL !== 'https://script.google.com/macros/s/AKfycbzqiRxH0TAWTERknWymL7vOIq6xmnj4HnxNo_HDPKHXq2rwXORVuOUNK2CGwMLQFVyT/exec') {
+  if (GAS_URL) {
     try {
-      const fd = new FormData();
-      Object.entries(record).forEach(([k, v]) => fd.append(k, v));
-      const res = await fetch(GAS_URL, { method: 'POST', body: fd });
-      gasOk = res.ok;
+      const params = new URLSearchParams();
+      Object.entries(record).forEach(([k, v]) => params.append(k, String(v)));
+      await fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: params.toString()
+      });
+      gasOk = true;
     } catch (e) { console.error('GAS送信エラー:', e); }
   } else { gasOk = true; }
 
