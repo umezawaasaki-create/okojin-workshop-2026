@@ -315,24 +315,28 @@ function makeId(grade, cls, num) { return (grade + '-' + cls + '-' + num).trim()
 // ============ GASからデータ取得 ============
 async function fetchFromGAS() {
   if (!GAS_URL) return [];
-  try {
-    return await new Promise((resolve) => {
-      const cb = 'cb_' + Date.now();
-      const script = document.createElement('script');
-      window[cb] = (data) => {
+  return new Promise((resolve) => {
+    const cb = 'gasCallback_' + Date.now();
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    window[cb] = function(data) {
+      resolve(Array.isArray(data) ? data : []);
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    };
+    script.onerror = function() {
+      resolve([]);
+      delete window[cb];
+    };
+    script.src = GAS_URL + '?callback=' + cb + '&t=' + Date.now();
+    document.head.appendChild(script);
+    setTimeout(function() {
+      if (window[cb]) {
+        resolve([]);
         delete window[cb];
-        document.body.removeChild(script);
-        resolve(Array.isArray(data) ? data : []);
-      };
-      script.onerror = () => { delete window[cb]; resolve([]); };
-      script.src = GAS_URL + '?callback=' + cb;
-      document.body.appendChild(script);
-      setTimeout(() => { if (window[cb]) { delete window[cb]; resolve([]); } }, 10000);
-    });
-  } catch (e) {
-    console.error('GAS取得エラー:', e);
-    return [];
-  }
+      }
+    }, 15000);
+  });
 }
 
 // ============ フォーム送信 ============
