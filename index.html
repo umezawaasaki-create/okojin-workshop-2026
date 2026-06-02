@@ -287,12 +287,12 @@ let gasData = [];
 function showTab(t, btn) {
   document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
   ['student','gallery','admin'].forEach(id => {
-    document.getElementById('view-' + id).style.display = id === t ? '' : 'none';
+    document.getElementById('view-' + id).style.display = id === t ? 'block' : 'none';
   });
   btn.classList.add('active');
   if (t === 'gallery') loadGallery();
   if (t === 'admin') {
-    document.getElementById('admin-lock').style.display = '';
+    document.getElementById('admin-lock').style.display = 'block';
     document.getElementById('admin-content').style.display = 'none';
     document.getElementById('pw-input').value = '';
     document.getElementById('pw-err').style.display = 'none';
