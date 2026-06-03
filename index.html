@@ -8,55 +8,42 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; background: #f0f4f8; color: #1a202c; min-height: 100vh; padding: 24px 16px 48px; }
   .container { max-width: 680px; margin: 0 auto; }
-
   .header { background: #1E2761; color: #fff; border-radius: 12px; padding: 28px 28px 22px; margin-bottom: 8px; }
   .header-badge { display: inline-block; background: rgba(2,195,154,0.25); color: #02C39A; font-size: 11px; font-weight: 700; letter-spacing: .05em; padding: 3px 12px; border-radius: 20px; margin-bottom: 12px; }
   .header h1 { font-size: 20px; font-weight: 700; line-height: 1.4; margin-bottom: 6px; }
   .header p  { font-size: 13px; color: rgba(255,255,255,.7); line-height: 1.7; }
-
   .tabs { display: flex; background: #fff; border-radius: 10px; border: 1.5px solid #d1d9e0; overflow: hidden; margin-bottom: 20px; }
   .tab { flex: 1; padding: 11px 4px; text-align: center; font-size: 12px; font-weight: 600; color: #6b7280; cursor: pointer; border: none; background: none; transition: background .15s, color .15s; }
   .tab.active { background: #1E2761; color: #fff; }
   .tab:not(.active):hover { background: #f3f4f6; }
-
   .card { background: #fff; border: 1.5px solid #d1d9e0; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
   .card-legend { font-size: 11px; font-weight: 700; letter-spacing: .06em; color: #fff; background: #028090; display: inline-block; padding: 3px 12px; border-radius: 20px; margin-bottom: 16px; }
-
   .field { margin-bottom: 18px; }
   .field:last-child { margin-bottom: 0; }
   .field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 5px; }
   .field label .req { color: #e53e3e; margin-left: 3px; }
   .field .hint { font-size: 11px; color: #6b7280; margin-bottom: 6px; line-height: 1.6; }
-  .field input[type="text"], .field textarea {
-    width: 100%; border: 1.5px solid #d1d9e0; border-radius: 8px; padding: 10px 12px;
-    font-size: 14px; font-family: inherit; color: #1a202c; background: #fff;
-    transition: border-color .15s, box-shadow .15s; resize: vertical;
-  }
+  .field input[type="text"], .field textarea { width: 100%; border: 1.5px solid #d1d9e0; border-radius: 8px; padding: 10px 12px; font-size: 14px; font-family: inherit; color: #1a202c; background: #fff; transition: border-color .15s, box-shadow .15s; resize: vertical; }
   .field input[type="text"]:focus, .field textarea:focus { outline: none; border-color: #028090; box-shadow: 0 0 0 3px rgba(2,128,144,.12); }
   .field textarea { min-height: 90px; }
   .char-count { text-align: right; font-size: 11px; color: #9ca3af; margin-top: 4px; }
-  .char-count.ok   { color: #2da44e; }
-  .char-count.over { color: #e53e3e; }
-
+  .char-count.ok { color: #2da44e; } .char-count.over { color: #e53e3e; }
   .id-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
   .name-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 16px; }
   .name-row .field { flex: 1; margin-bottom: 0; }
   .lookup-btn { flex-shrink: 0; height: 42px; padding: 0 14px; border: 1.5px solid #d1d9e0; border-radius: 8px; background: #f9fafb; font-size: 13px; font-weight: 600; color: #374151; cursor: pointer; white-space: nowrap; }
   .lookup-btn:hover { background: #f3f4f6; }
-
   .btn-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
   .submit-btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 28px; background: #1E2761; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
   .submit-btn:hover { background: #16204f; }
   .submit-btn:disabled { background: #9ca3af; cursor: not-allowed; }
   .clear-btn { padding: 11px 20px; background: none; border: 1.5px solid #d1d9e0; border-radius: 8px; font-size: 13px; font-weight: 600; color: #6b7280; cursor: pointer; }
   .clear-btn:hover { background: #f3f4f6; }
-
   .msg { display: none; border-radius: 8px; padding: 12px 16px; font-size: 13px; margin-top: 14px; line-height: 1.6; }
   .msg.success { background: #d1fae5; border: 1px solid #6ee7b7; color: #065f46; }
-  .msg.error   { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
-
-  /* ===== みんなの回答 ===== */
-  #view-gallery { display: none; }
+  .msg.error { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
+  .view { display: none; }
+  .view.active { display: block; }
   .gallery-filter { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
   .gallery-search { flex: 1; min-width: 160px; border: 1.5px solid #d1d9e0; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; }
   .gallery-search:focus { outline: none; border-color: #028090; }
@@ -79,31 +66,23 @@
   .ai-tag { font-size: 11px; background: #e6f1fb; color: #0c447c; padding: 2px 8px; border-radius: 20px; }
   .gallery-empty { text-align: center; padding: 48px 0; color: #9ca3af; font-size: 13px; }
   .loading { text-align: center; padding: 32px 0; color: #9ca3af; font-size: 13px; }
-
-  /* ===== 管理画面 ===== */
-  #view-admin { display: none; }
   .pw-screen { max-width: 300px; margin: 40px auto; text-align: center; background: #fff; border: 1.5px solid #d1d9e0; border-radius: 12px; padding: 32px 24px; }
   .pw-screen h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
-  .pw-screen p  { font-size: 13px; color: #6b7280; margin-bottom: 18px; }
+  .pw-screen p { font-size: 13px; color: #6b7280; margin-bottom: 18px; }
   .pw-input { width: 100%; border: 1.5px solid #d1d9e0; border-radius: 8px; padding: 10px 12px; font-size: 14px; margin-bottom: 10px; font-family: inherit; }
   .pw-input:focus { outline: none; border-color: #028090; }
   .pw-btn { width: 100%; padding: 11px; background: #1E2761; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
   .pw-btn:hover { background: #16204f; }
   .pw-err { font-size: 12px; color: #e53e3e; margin-top: 8px; display: none; }
-
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
   .stat { background: #fff; border: 1.5px solid #d1d9e0; border-radius: 10px; padding: 14px; text-align: center; }
   .stat-num { font-size: 26px; font-weight: 700; color: #1E2761; }
   .stat-label { font-size: 11px; color: #6b7280; margin-top: 2px; }
-
   .filter-row { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
   .search-input { flex: 1; min-width: 160px; border: 1.5px solid #d1d9e0; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; }
   .search-input:focus { outline: none; border-color: #028090; }
   .dl-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border: 1.5px solid #d1d9e0; border-radius: 8px; background: #fff; font-size: 12px; font-weight: 600; color: #374151; cursor: pointer; white-space: nowrap; }
   .dl-btn:hover { background: #f3f4f6; }
-  .dl-btn.danger { border-color: #fca5a5; color: #e53e3e; }
-  .dl-btn.danger:hover { background: #fef2f2; }
-
   .table-wrap { overflow-x: auto; border: 1.5px solid #d1d9e0; border-radius: 10px; background: #fff; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
   th { background: #f9fafb; padding: 9px 10px; text-align: left; font-size: 11px; font-weight: 700; color: #6b7280; border-bottom: 1.5px solid #d1d9e0; white-space: nowrap; }
@@ -118,10 +97,26 @@
   .detail-row.open { display: table-row; }
   .detail-cell { padding: 14px 12px; background: #f9fafb; font-size: 12px; line-height: 1.8; color: #4b5563; white-space: normal; }
   .detail-cell strong { color: #1a202c; }
-  .del-btn { background: none; border: none; cursor: pointer; color: #9ca3af; font-size: 12px; padding: 4px 0; margin-top: 8px; display: block; }
-  .del-btn:hover { color: #e53e3e; }
   .empty { text-align: center; padding: 40px 0; font-size: 13px; color: #9ca3af; }
-
+  .admin-tabs { display: flex; gap: 0; border-bottom: 1.5px solid #d1d9e0; margin-bottom: 16px; }
+  .admin-tab { padding: 8px 18px; font-size: 13px; font-weight: 600; color: #6b7280; cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -1.5px; transition: color .15s; }
+  .admin-tab.active { color: #1E2761; border-bottom-color: #1E2761; }
+  .admin-tab:hover:not(.active) { color: #374151; }
+  .analysis-group { background: #fff; border: 1.5px solid #d1d9e0; border-radius: 12px; overflow: hidden; margin-bottom: 16px; opacity: 0; transform: translateY(8px); transition: opacity .4s ease, transform .4s ease; }
+  .analysis-group.visible { opacity: 1; transform: translateY(0); }
+  .analysis-group-header { padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+  .analysis-group-label { font-size: 14px; font-weight: 700; }
+  .analysis-group-count { font-size: 11px; padding: 2px 8px; border-radius: 20px; }
+  .analysis-group-body { padding: 14px 16px; border-top: 1.5px solid #d1d9e0; }
+  .analysis-summary { font-size: 13px; line-height: 1.8; color: #374151; min-height: 20px; }
+  .analysis-members { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .analysis-member { font-size: 11px; background: #f3f4f6; border: 0.5px solid #d1d9e0; border-radius: 20px; padding: 2px 10px; color: #6b7280; }
+  .analysis-overall { background: #f9fafb; border: 1.5px solid #d1d9e0; border-radius: 12px; padding: 16px; margin-top: 4px; opacity: 0; transition: opacity .4s ease; }
+  .analysis-overall.visible { opacity: 1; }
+  .analysis-overall-label { font-size: 11px; font-weight: 700; color: #6b7280; margin-bottom: 8px; }
+  .analysis-overall-text { font-size: 13px; line-height: 1.8; color: #374151; }
+  .typing-cursor { display: inline-block; width: 2px; height: 13px; background: #374151; vertical-align: middle; animation: blink .7s step-end infinite; }
+  @keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
   @media (max-width: 480px) {
     .header { padding: 20px 18px 16px; } .card { padding: 18px; }
     .id-row { grid-template-columns: 1fr 1fr; }
@@ -132,62 +127,35 @@
 </head>
 <body>
 <div class="container">
-
   <div class="header">
     <div class="header-badge">Phase 0: 違和感の発見</div>
     <h1>大高人ワークショップ 2026<br>事前課題シート</h1>
     <p>第1回ワークショップ前日までに記入・送信してください。<br>出席番号を使えば、いつでも前回の入力を読み込めます。</p>
   </div>
-
   <div class="tabs">
-    <button class="tab active" onclick="showTab('student', this)">📝 生徒フォーム</button>
-    <button class="tab" onclick="showTab('gallery', this)">🃏 みんなの回答</button>
-    <button class="tab" onclick="showTab('admin', this)">📊 管理</button>
+    <button class="tab active" onclick="showTab('student',this)">📝 生徒フォーム</button>
+    <button class="tab" onclick="showTab('gallery',this)">🃏 みんなの回答</button>
+    <button class="tab" onclick="showTab('admin',this)">📊 管理</button>
   </div>
 
-  <!-- 生徒フォーム -->
-  <div id="view-student">
+  <div id="view-student" class="view active">
     <div class="card">
       <div class="id-row">
-        <div class="field">
-          <label>学年 <span class="req">*</span></label>
-          <input type="text" id="f-grade" placeholder="例：1">
-        </div>
-        <div class="field">
-          <label>クラス <span class="req">*</span></label>
-          <input type="text" id="f-class" placeholder="例：3">
-        </div>
-        <div class="field">
-          <label>出席番号 <span class="req">*</span></label>
-          <input type="text" id="f-num" placeholder="例：15">
-        </div>
+        <div class="field"><label>学年 <span class="req">*</span></label><input type="text" id="f-grade" placeholder="例：1"></div>
+        <div class="field"><label>クラス <span class="req">*</span></label><input type="text" id="f-class" placeholder="例：3"></div>
+        <div class="field"><label>出席番号 <span class="req">*</span></label><input type="text" id="f-num" placeholder="例：15"></div>
       </div>
       <div class="name-row">
-        <div class="field">
-          <label>氏名 <span class="req">*</span></label>
-          <input type="text" id="f-name" placeholder="例：山田太郎">
-        </div>
+        <div class="field"><label>氏名 <span class="req">*</span></label><input type="text" id="f-name" placeholder="例：山田太郎"></div>
         <button class="lookup-btn" onclick="lookupStudent()">↩ 前回読込</button>
       </div>
     </div>
-
     <div class="card">
       <div class="card-legend">広げる（Diverge）</div>
-      <div class="field">
-        <label>AI場面①</label>
-        <div class="hint">日常生活で「AIが使われている／使えそう」と感じる場面を3つ挙げてください。</div>
-        <input type="text" id="f-ai1" placeholder="例：スマホの顔認証">
-      </div>
-      <div class="field">
-        <label>AI場面②</label>
-        <input type="text" id="f-ai2" placeholder="例：動画のおすすめアルゴリズム">
-      </div>
-      <div class="field">
-        <label>AI場面③</label>
-        <input type="text" id="f-ai3" placeholder="例：地図アプリのルート案内">
-      </div>
+      <div class="field"><label>AI場面①</label><div class="hint">日常生活で「AIが使われている／使えそう」と感じる場面を3つ挙げてください。</div><input type="text" id="f-ai1" placeholder="例：スマホの顔認証"></div>
+      <div class="field"><label>AI場面②</label><input type="text" id="f-ai2" placeholder="例：動画のおすすめアルゴリズム"></div>
+      <div class="field"><label>AI場面③</label><input type="text" id="f-ai3" placeholder="例：地図アプリのルート案内"></div>
     </div>
-
     <div class="card">
       <div class="card-legend">絞る（Converge）</div>
       <div class="field">
@@ -197,7 +165,6 @@
         <div class="char-count" id="char-count">0字</div>
       </div>
     </div>
-
     <div class="card">
       <div class="card-legend">問う（Question）</div>
       <div class="field">
@@ -206,42 +173,37 @@
         <textarea id="f-question" placeholder="例：部活の練習メニューをAIが最適化してくれたら…"></textarea>
       </div>
     </div>
-
     <div class="card">
       <div class="btn-row">
         <button class="submit-btn" id="submit-btn" onclick="submitForm()">✈ 提出する</button>
         <button class="clear-btn" onclick="clearForm()">クリア</button>
       </div>
       <div class="msg success" id="msg-success">✅ <strong>提出完了！</strong>「みんなの回答」タブで全員の回答が見られます。</div>
-      <div class="msg error"   id="msg-error">❌ 送信に失敗しました。時間をおいてもう一度お試しください。</div>
+      <div class="msg error" id="msg-error">❌ 送信に失敗しました。時間をおいてもう一度お試しください。</div>
     </div>
   </div>
 
-  <!-- みんなの回答 -->
-  <div id="view-gallery">
+  <div id="view-gallery" class="view">
     <div class="gallery-filter">
-      <input type="text" class="gallery-search" id="gallery-search" placeholder="🔍 名前・キーワードで検索" oninput="applyGalleryFilter()">
-      <select class="class-filter" id="class-filter" onchange="applyGalleryFilter()">
-        <option value="">全クラス</option>
-      </select>
+      <input type="text" class="gallery-search" id="gallery-search" placeholder="🔍 名前・キーワードで検索" oninput="applyFilter()">
+      <select class="class-filter" id="class-filter" onchange="applyFilter()"><option value="">全クラス</option></select>
       <div class="gallery-meta">
         <span class="gallery-count" id="gallery-count"></span>
         <button class="reload-btn" onclick="loadGallery()">↻ 更新</button>
       </div>
     </div>
-    <div id="gallery-loading" class="loading">読み込み中...</div>
-    <div class="gallery-grid" id="gallery-grid" style="display:none"></div>
-    <div class="gallery-empty" id="gallery-empty" style="display:none">まだ回答がありません</div>
+    <div id="gallery-loading" class="loading" style="display:none">読み込み中...</div>
+    <div id="gallery-grid" class="gallery-grid"></div>
+    <div id="gallery-empty" class="gallery-empty" style="display:none">まだ回答がありません</div>
   </div>
 
-  <!-- 管理画面 -->
-  <div id="view-admin">
+  <div id="view-admin" class="view">
     <div id="admin-lock">
       <div class="pw-screen">
         <div style="font-size:32px;margin-bottom:12px">🔒</div>
         <h3>管理者ログイン</h3>
         <p>梅澤さん専用のダッシュボードです。</p>
-        <input type="password" class="pw-input" id="pw-input" placeholder="パスワード" onkeydown="if(event.key==='Enter') checkPw()">
+        <input type="password" class="pw-input" id="pw-input" placeholder="パスワード" onkeydown="if(event.key==='Enter')checkPw()">
         <button class="pw-btn" onclick="checkPw()">ログイン</button>
         <div class="pw-err" id="pw-err">パスワードが違います</div>
       </div>
@@ -255,41 +217,31 @@
       </div>
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th class="col-id">出席番号</th>
-              <th class="col-name">氏名</th>
-              <th class="col-cls">クラス</th>
-              <th class="col-ai1">AI場面①</th>
-              <th class="col-q">学校への問い</th>
-              <th class="col-dt">提出日時</th>
-              <th class="col-act"></th>
-            </tr>
-          </thead>
+          <thead><tr>
+            <th class="col-id">出席番号</th><th class="col-name">氏名</th><th class="col-cls">クラス</th>
+            <th class="col-ai1">AI場面①</th><th class="col-q">学校への問い</th><th class="col-dt">提出日時</th><th class="col-act"></th>
+          </tr></thead>
           <tbody id="table-body"></tbody>
         </table>
         <div id="empty-state" class="empty">まだ提出がありません</div>
       </div>
     </div>
   </div>
-
 </div>
+
 <script>
-// ★https://script.google.com/macros/s/AKfycbzqiRxH0TAWTERknWymL7vOIq6xmnj4HnxNo_HDPKHXq2rwXORVuOUNK2CGwMLQFVyT/exec
 const GAS_URL  = 'https://script.google.com/macros/s/AKfycbzqiRxH0TAWTERknWymL7vOIq6xmnj4HnxNo_HDPKHXq2rwXORVuOUNK2CGwMLQFVyT/exec';
+const PROXY    = 'https://corsproxy.io/?';
 const ADMIN_PW = 'okojin2026';
 const LS_KEY   = 'okojin_ws2026';
+let gasData    = [];
 
-// GASから取得したデータをキャッシュ
-let gasData = [];
-
-// ============ タブ切替 ============
+// タブ切替（CSSクラスで制御）
 function showTab(t, btn) {
   document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-  ['student','gallery','admin'].forEach(id => {
-    document.getElementById('view-' + id).style.display = id === t ? 'block' : 'none';
-  });
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   btn.classList.add('active');
+  document.getElementById('view-' + t).classList.add('active');
   if (t === 'gallery') loadGallery();
   if (t === 'admin') {
     document.getElementById('admin-lock').style.display = 'block';
@@ -299,174 +251,124 @@ function showTab(t, btn) {
   }
 }
 
-// ============ 字数カウント ============
-document.getElementById('f-future').addEventListener('input', function () {
+// 字数カウント
+document.getElementById('f-future').addEventListener('input', function() {
   const n = this.value.length;
   const el = document.getElementById('char-count');
   el.textContent = n + '字';
-  el.className = 'char-count' + (n >= 100 && n <= 200 ? ' ok' : n > 200 ? ' over' : '');
+  el.className = 'char-count' + (n>=100&&n<=200?' ok':n>200?' over':'');
 });
 
-// ============ ローカルストレージ（自分の入力の読込専用）============
-function loadLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch { return []; } }
+// ローカルストレージ
+function loadLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY)||'[]'); } catch { return []; } }
 function saveLocal(d) { localStorage.setItem(LS_KEY, JSON.stringify(d)); }
-function makeId(grade, cls, num) { return (grade + '-' + cls + '-' + num).trim(); }
+function makeId(g,c,n) { return g+'-'+c+'-'+n; }
 
-// ============ GASからデータ取得 ============
-function fetchFromGAS() {
-  return new Promise(function(resolve) {
-    var cbName = 'cb' + Date.now();
-    var done = false;
-
-    window[cbName] = function(data) {
-      done = true;
-      resolve(Array.isArray(data) ? data : []);
-      try { delete window[cbName]; } catch(e) {}
-      var el = document.getElementById('jsonp-' + cbName);
-      if (el) el.parentNode.removeChild(el);
-    };
-
-    var s = document.createElement('script');
-    s.id = 'jsonp-' + cbName;
-    s.src = GAS_URL + '?callback=' + cbName + '&_=' + Date.now();
-    s.onerror = function() {
-      if (!done) { done = true; resolve([]); }
-    };
-    document.body.appendChild(s);
-
-    setTimeout(function() {
-      if (!done) { done = true; resolve([]); }
-    }, 10000);
-  });
+// GASからデータ取得（corsproxy経由）
+async function fetchFromGAS() {
+  try {
+    const url = PROXY + encodeURIComponent(GAS_URL);
+    const res = await fetch(url);
+    const json = await res.json();
+    return Array.isArray(json) ? json : [];
+  } catch(e) {
+    console.error('fetch error:', e);
+    return [];
+  }
 }
 
-// ============ フォーム送信 ============
+// フォーム送信
 async function submitForm() {
-  const grade    = document.getElementById('f-grade').value.trim();
-  const cls      = document.getElementById('f-class').value.trim();
-  const num      = document.getElementById('f-num').value.trim();
-  const name     = document.getElementById('f-name').value.trim();
-  const ai1      = document.getElementById('f-ai1').value.trim();
-  const ai2      = document.getElementById('f-ai2').value.trim();
-  const ai3      = document.getElementById('f-ai3').value.trim();
-  const future   = document.getElementById('f-future').value.trim();
-  const question = document.getElementById('f-question').value.trim();
-
-  if (!grade || !cls || !num) { alert('学年・クラス・出席番号を入力してください。'); return; }
-  if (!name)     { alert('氏名を入力してください。'); return; }
-  if (!future)   { alert('「もしAIがさらに進化したら？」を記入してください。'); return; }
-  if (!question) { alert('学校への問いを記入してください。'); return; }
-
-  const btn = document.getElementById('submit-btn');
-  btn.disabled = true; btn.textContent = '送信中…';
-
-  const now = new Date();
-  const dt  = now.toLocaleDateString('ja-JP') + ' ' + now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-  const id  = makeId(grade, cls, num);
-  const record = { id, grade, cls, num, name, ai1, ai2, ai3, future, question, dt };
-
-  // ローカルにも保存（前回読込用）
-  const local = loadLocal();
-  const idx = local.findIndex(r => r.id === id);
-  if (idx >= 0) local[idx] = record; else local.push(record);
+  const grade=document.getElementById('f-grade').value.trim();
+  const cls=document.getElementById('f-class').value.trim();
+  const num=document.getElementById('f-num').value.trim();
+  const name=document.getElementById('f-name').value.trim();
+  const ai1=document.getElementById('f-ai1').value.trim();
+  const ai2=document.getElementById('f-ai2').value.trim();
+  const ai3=document.getElementById('f-ai3').value.trim();
+  const future=document.getElementById('f-future').value.trim();
+  const question=document.getElementById('f-question').value.trim();
+  if(!grade||!cls||!num){alert('学年・クラス・出席番号を入力してください。');return;}
+  if(!name){alert('氏名を入力してください。');return;}
+  if(!future){alert('「もしAIがさらに進化したら？」を記入してください。');return;}
+  if(!question){alert('学校への問いを記入してください。');return;}
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=true; btn.textContent='送信中…';
+  const now=new Date();
+  const dt=now.toLocaleDateString('ja-JP')+' '+now.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+  const id=makeId(grade,cls,num);
+  const record={id,grade,cls,num,name,ai1,ai2,ai3,future,question,dt};
+  const local=loadLocal();
+  const idx=local.findIndex(r=>r.id===id);
+  if(idx>=0)local[idx]=record; else local.push(record);
   saveLocal(local);
-
-  // GASへ送信
-  let gasOk = false;
-  if (GAS_URL) {
-    try {
-      const params = new URLSearchParams();
-      Object.entries(record).forEach(([k, v]) => params.append(k, String(v)));
-      await fetch(GAS_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: params.toString()
-      });
-      gasOk = true;
-    } catch (e) { console.error('GAS送信エラー:', e); }
-  } else { gasOk = true; }
-
-  btn.disabled = false; btn.textContent = '✈ 提出する';
-  const suc = document.getElementById('msg-success');
-  const err = document.getElementById('msg-error');
-  if (gasOk) {
-    suc.style.display = 'block'; err.style.display = 'none';
-    setTimeout(() => { suc.style.display = 'none'; }, 5000);
-  } else {
-    err.style.display = 'block'; suc.style.display = 'none';
-  }
+  try {
+    const params=new URLSearchParams();
+    Object.entries(record).forEach(([k,v])=>params.append(k,String(v)));
+    await fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params.toString()});
+  } catch(e){console.error(e);}
+  btn.disabled=false; btn.textContent='✈ 提出する';
+  const suc=document.getElementById('msg-success');
+  suc.style.display='block';
+  setTimeout(()=>{suc.style.display='none';},5000);
 }
 
-// ============ クリア ============
+// クリア
 function clearForm() {
-  ['f-grade','f-class','f-num','f-name','f-ai1','f-ai2','f-ai3','f-future','f-question']
-    .forEach(id => { document.getElementById(id).value = ''; });
-  document.getElementById('char-count').textContent = '0字';
-  document.getElementById('char-count').className = 'char-count';
+  ['f-grade','f-class','f-num','f-name','f-ai1','f-ai2','f-ai3','f-future','f-question'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('char-count').textContent='0字';
+  document.getElementById('char-count').className='char-count';
 }
 
-// ============ 前回読込（ローカルから） ============
+// 前回読込
 function lookupStudent() {
-  const grade = document.getElementById('f-grade').value.trim();
-  const cls   = document.getElementById('f-class').value.trim();
-  const num   = document.getElementById('f-num').value.trim();
-  if (!grade || !cls || !num) { alert('学年・クラス・出席番号を入力してから「前回読込」を押してください。'); return; }
-  const id  = makeId(grade, cls, num);
-  const rec = loadLocal().find(r => r.id === id);
-  if (rec) {
-    document.getElementById('f-name').value     = rec.name || '';
-    document.getElementById('f-ai1').value      = rec.ai1 || '';
-    document.getElementById('f-ai2').value      = rec.ai2 || '';
-    document.getElementById('f-ai3').value      = rec.ai3 || '';
-    document.getElementById('f-future').value   = rec.future || '';
-    document.getElementById('f-question').value = rec.question || '';
-    const n = (rec.future || '').length;
-    const el = document.getElementById('char-count');
-    el.textContent = n + '字';
-    el.className = 'char-count' + (n >= 100 && n <= 200 ? ' ok' : n > 200 ? ' over' : '');
+  const grade=document.getElementById('f-grade').value.trim();
+  const cls=document.getElementById('f-class').value.trim();
+  const num=document.getElementById('f-num').value.trim();
+  if(!grade||!cls||!num){alert('学年・クラス・出席番号を入力してから「前回読込」を押してください。');return;}
+  const rec=loadLocal().find(r=>r.id===makeId(grade,cls,num));
+  if(rec){
+    document.getElementById('f-name').value=rec.name||'';
+    document.getElementById('f-ai1').value=rec.ai1||'';
+    document.getElementById('f-ai2').value=rec.ai2||'';
+    document.getElementById('f-ai3').value=rec.ai3||'';
+    document.getElementById('f-future').value=rec.future||'';
+    document.getElementById('f-question').value=rec.question||'';
+    const n=(rec.future||'').length;
+    const el=document.getElementById('char-count');
+    el.textContent=n+'字';
+    el.className='char-count'+(n>=100&&n<=200?' ok':n>200?' over':'');
     alert('前回の入力を読み込みました。編集後に再提出してください。');
-  } else { alert('入力が見つかりませんでした。新規として入力してください。'); }
+  } else {alert('入力が見つかりませんでした。新規として入力してください。');}
 }
 
-// ============ みんなの回答（GASから取得） ============
+// みんなの回答
 async function loadGallery() {
-  document.getElementById('gallery-loading').style.display = '';
-  document.getElementById('gallery-grid').style.display = 'none';
-  document.getElementById('gallery-empty').style.display = 'none';
-
-  const result = await fetchFromGAS();
-  gasData = result;
-  document.getElementById('gallery-loading').style.display = 'none';
-  applyGalleryFilter();
+  document.getElementById('gallery-loading').style.display='block';
+  document.getElementById('gallery-grid').innerHTML='';
+  document.getElementById('gallery-empty').style.display='none';
+  gasData = await fetchFromGAS();
+  document.getElementById('gallery-loading').style.display='none';
+  applyFilter();
 }
 
-function applyGalleryFilter() {
-  const q   = (document.getElementById('gallery-search').value || '').toLowerCase();
-  const cls = document.getElementById('class-filter').value;
-
-  // クラスフィルター更新
-  const classes = [...new Set(gasData.map(r => r.grade + '年' + r.cls + '組').filter(Boolean))].sort();
-  const sel = document.getElementById('class-filter');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">全クラス</option>' + classes.map(c =>
-    `<option value="${c}" ${c === cur ? 'selected' : ''}>${c}</option>`).join('');
-
-  let filtered = gasData;
-  if (cls) filtered = filtered.filter(r => (r.grade + '年' + r.cls + '組') === cls);
-  if (q)   filtered = filtered.filter(r => JSON.stringify(r).toLowerCase().includes(q));
-  filtered = filtered.slice().sort((a, b) => String(a.id).localeCompare(String(b.id)));
-
-  const grid  = document.getElementById('gallery-grid');
-  const empty = document.getElementById('gallery-empty');
-  document.getElementById('gallery-count').textContent = filtered.length + '件';
-
-  if (!filtered.length) {
-    grid.style.display = 'none'; empty.style.display = ''; return;
-  }
-  empty.style.display = 'none'; grid.style.display = '';
-
-  grid.innerHTML = filtered.map(r => `
+function applyFilter() {
+  const q=(document.getElementById('gallery-search').value||'').toLowerCase();
+  const cls=document.getElementById('class-filter').value;
+  const classes=[...new Set(gasData.map(r=>r.grade+'年'+r.cls+'組').filter(Boolean))].sort();
+  const sel=document.getElementById('class-filter');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">全クラス</option>'+classes.map(c=>`<option value="${c}"${c===cur?' selected':''}>${c}</option>`).join('');
+  let filtered=gasData;
+  if(cls) filtered=filtered.filter(r=>(r.grade+'年'+r.cls+'組')===cls);
+  if(q) filtered=filtered.filter(r=>JSON.stringify(r).toLowerCase().includes(q));
+  filtered=filtered.slice().sort((a,b)=>String(a.id).localeCompare(String(b.id)));
+  document.getElementById('gallery-count').textContent=filtered.length+'件';
+  const grid=document.getElementById('gallery-grid');
+  const empty=document.getElementById('gallery-empty');
+  if(!filtered.length){grid.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  grid.innerHTML=filtered.map(r=>`
     <div class="student-card">
       <div class="student-card-header">
         <div class="student-card-name">${esc(r.name)}</div>
@@ -475,9 +377,7 @@ function applyGalleryFilter() {
       <div class="student-card-body">
         <div class="card-section">
           <div class="card-section-label">AIが使われていると感じる場面</div>
-          <div class="ai-tags">
-            ${[r.ai1, r.ai2, r.ai3].filter(Boolean).map(a => `<span class="ai-tag">${esc(a)}</span>`).join('')}
-          </div>
+          <div class="ai-tags">${[r.ai1,r.ai2,r.ai3].filter(Boolean).map(a=>`<span class="ai-tag">${esc(a)}</span>`).join('')}</div>
         </div>
         <div class="card-section">
           <div class="card-section-label">もしAIが進化したら</div>
@@ -491,33 +391,33 @@ function applyGalleryFilter() {
     </div>`).join('');
 }
 
-// ============ 管理者 ============
+// 管理者
 function checkPw() {
-  if (document.getElementById('pw-input').value === ADMIN_PW) {
-    document.getElementById('admin-lock').style.display = 'none';
-    document.getElementById('admin-content').style.display = '';
+  if(document.getElementById('pw-input').value===ADMIN_PW){
+    document.getElementById('admin-lock').style.display='none';
+    document.getElementById('admin-content').style.display='block';
     loadDashboard();
-  } else { document.getElementById('pw-err').style.display = 'block'; }
+  } else {document.getElementById('pw-err').style.display='block';}
 }
 
 async function loadDashboard() {
-  gasData = await fetchFromGAS();
-  const today = new Date().toLocaleDateString('ja-JP');
-  document.getElementById('stats').innerHTML = `
+  gasData=await fetchFromGAS();
+  const today=new Date().toLocaleDateString('ja-JP');
+  document.getElementById('stats').innerHTML=`
     <div class="stat"><div class="stat-num">${gasData.length}</div><div class="stat-label">提出数（合計）</div></div>
-    <div class="stat"><div class="stat-num">${gasData.filter(r => String(r.dt).startsWith(today)).length}</div><div class="stat-label">本日の提出</div></div>
+    <div class="stat"><div class="stat-num">${gasData.filter(r=>String(r.dt).startsWith(today)).length}</div><div class="stat-label">本日の提出</div></div>
     <div class="stat"><div class="stat-num">${gasData.length}</div><div class="stat-label">スプレッドシート反映済</div></div>`;
   renderTable();
 }
 
 function renderTable() {
-  const q = (document.getElementById('search-box') || {}).value || '';
-  const filtered = q ? gasData.filter(r => JSON.stringify(r).toLowerCase().includes(q.toLowerCase())) : gasData;
-  const tbody = document.getElementById('table-body');
-  const empty = document.getElementById('empty-state');
-  if (!filtered.length) { tbody.innerHTML = ''; empty.style.display = ''; return; }
-  empty.style.display = 'none';
-  tbody.innerHTML = filtered.slice().reverse().map((r, i) => `
+  const q=(document.getElementById('search-box')||{}).value||'';
+  const filtered=q?gasData.filter(r=>JSON.stringify(r).toLowerCase().includes(q.toLowerCase())):gasData;
+  const tbody=document.getElementById('table-body');
+  const empty=document.getElementById('empty-state');
+  if(!filtered.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML=filtered.slice().reverse().map((r,i)=>`
     <tr>
       <td class="col-id">${esc(r.id||'')}</td>
       <td class="col-name" title="${esc(r.name)}">${esc(r.name)}</td>
@@ -538,29 +438,26 @@ function renderTable() {
     </tr>`).join('');
 }
 
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-function toggleDetail(i, btn) {
-  const row = document.getElementById('detail-' + i);
-  const isOpen = row.classList.contains('open');
-  document.querySelectorAll('.detail-row.open').forEach(r => r.classList.remove('open'));
-  document.querySelectorAll('.expand-btn').forEach(b => b.textContent = '▾');
-  if (!isOpen) { row.classList.add('open'); btn.textContent = '▴'; }
+function toggleDetail(i,btn){
+  const row=document.getElementById('detail-'+i);
+  const isOpen=row.classList.contains('open');
+  document.querySelectorAll('.detail-row.open').forEach(r=>r.classList.remove('open'));
+  document.querySelectorAll('.expand-btn').forEach(b=>b.textContent='▾');
+  if(!isOpen){row.classList.add('open');btn.textContent='▴';}
 }
 
-function exportCSV() {
-  if (!gasData.length) { alert('データがありません。'); return; }
-  const header = ['出席番号','学年','クラス','番号','氏名','AI場面①','AI場面②','AI場面③','AIが進化したら','学校への問い','提出日時'];
-  const rows = gasData.map(r =>
-    [r.id,r.grade,r.cls,r.num,r.name,r.ai1||'',r.ai2||'',r.ai3||'',r.future||'',r.question||'',r.dt]
-    .map(v => `"${String(v).replace(/"/g,'""')}"`)
-  );
-  const csv = [header,...rows].map(r => r.join(',')).join('\n');
-  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = '大高人WS2026_事前課題_' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click(); URL.revokeObjectURL(a.href);
+function exportCSV(){
+  if(!gasData.length){alert('データがありません。');return;}
+  const header=['出席番号','学年','クラス','番号','氏名','AI場面①','AI場面②','AI場面③','AIが進化したら','学校への問い','提出日時'];
+  const rows=gasData.map(r=>[r.id,r.grade,r.cls,r.num,r.name,r.ai1||'',r.ai2||'',r.ai3||'',r.future||'',r.question||'',r.dt].map(v=>`"${String(v).replace(/"/g,'""')}"`));
+  const csv=[header,...rows].map(r=>r.join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='大高人WS2026_事前課題_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();URL.revokeObjectURL(a.href);
 }
 </script>
 </body>
