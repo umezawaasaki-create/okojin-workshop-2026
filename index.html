@@ -533,7 +533,7 @@ async function runAnalysis(){
     if(analysisResult.error){throw new Error(analysisResult.error);}
 
     const text=analysisResult.result;
-    const clean=text.replace(/```json|```/g,'').trim();
+    const clean=text.replace(/```json\n?|```/g,'').trim();
     const parsed=JSON.parse(clean);
 
     status.textContent='✅ 分析完了！グループを表示しています...';
