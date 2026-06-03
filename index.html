@@ -508,37 +508,31 @@ async function runAnalysis(){
   const result=document.getElementById('analysis-result');
   btn.disabled=true;
   result.innerHTML='';
-  status.textContent='⏳ AIが回答を分析しています...';
-
-  const prompt=`あなたは高校生の探究学習を支援するAIです。
-以下は埼玉県立大宮高校の生徒たちの事前課題の回答です。
-
-【回答データ】
-${gasData.map((r,i)=>`
-[${i+1}] ${r.name}（${r.grade}年${r.cls}組${r.num}番）
-・AIが使われている場面：${r.ai1}、${r.ai2}、${r.ai3}
-・もしAIが進化したら：${r.future}
-・学校への問い：${r.question}
-`).join('\n')}
-
-上記の回答を分析して、以下の形式でJSONのみを返してください（前置き・後書き・コードブロック不要）：
-
-{"groups":[{"name":"グループ名（10文字以内）","members":["氏名1","氏名2"],"summary":"このグループの傾向・共通点の要約（100字程度）"}],"overall":"全体の傾向・大宮高校生の特徴についてのコメント（150字程度）"}
-
-グループは2〜5個程度に分類してください。`;
+  status.textContent='⏳ AIが回答を分析しています...（30秒ほどかかります）';
 
   try{
-    const response=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1500,
-        messages:[{role:'user',content:prompt}]
-      })
+    // GASのdoAnalysisをJSONP経由で呼び出す
+    const analysisResult = await new Promise(function(resolve, reject){
+      const cbName='analysis_'+Date.now();
+      const done={v:false};
+      window[cbName]=function(data){
+        done.v=true;
+        resolve(data);
+        try{delete window[cbName];}catch(e){}
+        const el=document.getElementById('jsonp-'+cbName);
+        if(el)el.parentNode.removeChild(el);
+      };
+      const s=document.createElement('script');
+      s.id='jsonp-'+cbName;
+      s.src=GAS_URL+'?action=analyze&callback='+cbName+'&_='+Date.now();
+      s.onerror=function(){if(!done.v){done.v=true;reject(new Error('通信エラー'));}};
+      document.body.appendChild(s);
+      setTimeout(function(){if(!done.v){done.v=true;reject(new Error('タイムアウト'));}},60000);
     });
-    const data=await response.json();
-    const text=data.content[0].text;
+
+    if(analysisResult.error){throw new Error(analysisResult.error);}
+
+    const text=analysisResult.result;
     const clean=text.replace(/```json|```/g,'').trim();
     const parsed=JSON.parse(clean);
 
@@ -584,7 +578,7 @@ ${gasData.map((r,i)=>`
 
   }catch(e){
     console.error(e);
-    status.textContent='❌ 分析に失敗しました。もう一度お試しください。';
+    status.textContent='❌ 分析に失敗しました。もう一度お試しください。（'+e.message+')';
   }
   btn.disabled=false;
 }
