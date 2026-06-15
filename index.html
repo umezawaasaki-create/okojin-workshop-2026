@@ -141,7 +141,6 @@
   @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
   @media(max-width:480px){
     .header{padding:20px 18px 16px}.card{padding:18px}
-    .tab{font-size:10.5px;padding:9px 2px}
     .id-row{grid-template-columns:1fr 1fr}
     .stats{gap:6px}.stat-num{font-size:20px}
     .gallery-grid{grid-template-columns:1fr}
@@ -169,7 +168,6 @@
   <div class="tabs">
     <button class="tab active" onclick="showTab('student',this)">📝 生徒フォーム</button>
     <button class="tab" onclick="showTab('gallery',this)">🃏 みんなの回答</button>
-    <button class="tab" onclick="showTab('kizuki',this)">💡 気づき</button>
     <button class="tab" onclick="showTab('admin',this)">📊 管理</button>
   </div>
 
@@ -210,6 +208,14 @@
       </div>
     </div>
     <div class="card">
+      <div class="card-legend">気づき（発表後に記入）</div>
+      <div class="field">
+        <label>気づき・考えたこと</label>
+        <div class="hint">グループやクラス全体での発表を聞いた後に記入してください。最初の提出時は空欄のままでOKです。後で「↩ 前回読込」ボタンで自分の回答を呼び出し、ここに追記して再提出してください。</div>
+        <textarea id="f-kizuki" placeholder="他の人の発表を聞いて、気づいたこと・考えたことを書いてください。"></textarea>
+      </div>
+    </div>
+    <div class="card">
       <div class="btn-row">
         <button class="submit-btn" id="submit-btn" onclick="submitForm()">✈ 提出する</button>
         <button class="clear-btn" onclick="clearForm()">クリア</button>
@@ -233,35 +239,6 @@
     <div id="gallery-loading" class="loading" style="display:none">読み込み中...</div>
     <div id="gallery-grid" class="gallery-grid"></div>
     <div id="gallery-empty" class="gallery-empty" style="display:none">まだ回答がありません</div>
-  </div>
-
-  <!-- 気づき -->
-  <div id="view-kizuki" class="view">
-    <div class="card">
-      <div class="card-legend">気づきの共有</div>
-      <div class="hint" style="margin-bottom:14px">グループ・クラス全体での発表を聞いて、印象に残ったこと・新しく気づいたこと・自分の考えが変わった点などを書いてください。</div>
-      <div class="id-row">
-        <div class="field"><label>学年 <span class="req">*</span></label><input type="text" id="k-grade" placeholder="例：1"></div>
-        <div class="field"><label>クラス <span class="req">*</span></label><input type="text" id="k-class" placeholder="例：3"></div>
-        <div class="field"><label>出席番号 <span class="req">*</span></label><input type="text" id="k-num" placeholder="例：15"></div>
-      </div>
-      <div class="name-row">
-        <div class="field"><label>氏名 <span class="req">*</span></label><input type="text" id="k-name" placeholder="例：山田太郎"></div>
-        <button class="lookup-btn" onclick="lookupKizukiStudent()">↩ 氏名を読込</button>
-      </div>
-      <div class="field">
-        <label>気づき・考えたこと <span class="req">*</span></label>
-        <div class="hint">例：自分とは違う視点でAIを使うアイデアが多くて驚いた／自分の問いと似ている人が多かった、など</div>
-        <textarea id="k-kizuki" placeholder="他の人の発表を聞いて、気づいたこと・考えたことを書いてください。"></textarea>
-      </div>
-    </div>
-    <div class="card">
-      <div class="btn-row">
-        <button class="submit-btn" id="kizuki-submit-btn" onclick="submitKizuki()">💡 気づきを提出する</button>
-      </div>
-      <div class="msg success" id="kizuki-msg-success">✅ <strong>提出完了！</strong>1日お疲れさまでした。</div>
-      <div class="msg error" id="kizuki-msg-error">❌ 送信に失敗しました。時間をおいてもう一度お試しください。</div>
-    </div>
   </div>
 
   <!-- 管理 -->
@@ -405,6 +382,7 @@ async function submitForm() {
   const ai3=document.getElementById('f-ai3').value.trim();
   const future=document.getElementById('f-future').value.trim();
   const question=document.getElementById('f-question').value.trim();
+  const kizuki=document.getElementById('f-kizuki').value.trim();
   if(!grade||!cls||!num){alert('学年・クラス・出席番号を入力してください。');return;}
   if(!name){alert('氏名を入力してください。');return;}
   if(!future){alert('「もしAIがさらに進化したら？」を記入してください。');return;}
@@ -414,7 +392,7 @@ async function submitForm() {
   const now=new Date();
   const dt=now.toLocaleDateString('ja-JP')+' '+now.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
   const id=makeId(grade,cls,num);
-  const record={id,grade,cls,num,name,ai1,ai2,ai3,future,question,dt};
+  const record={id,grade,cls,num,name,ai1,ai2,ai3,future,question,kizuki,dt};
   const local=loadLocal();
   const idx=local.findIndex(r=>r.id===id);
   if(idx>=0)local[idx]=record; else local.push(record);
@@ -431,7 +409,7 @@ async function submitForm() {
 
 // クリア
 function clearForm() {
-  ['f-grade','f-class','f-num','f-name','f-ai1','f-ai2','f-ai3','f-future','f-question'].forEach(id=>{document.getElementById(id).value='';});
+  ['f-grade','f-class','f-num','f-name','f-ai1','f-ai2','f-ai3','f-future','f-question','f-kizuki'].forEach(id=>{document.getElementById(id).value='';});
   document.getElementById('char-count').textContent='0字';
   document.getElementById('char-count').className='char-count';
 }
@@ -450,55 +428,12 @@ function lookupStudent() {
     document.getElementById('f-ai3').value=rec.ai3||'';
     document.getElementById('f-future').value=rec.future||'';
     document.getElementById('f-question').value=rec.question||'';
+    document.getElementById('f-kizuki').value=rec.kizuki||'';
     const n=(rec.future||'').length;
     const el=document.getElementById('char-count');
     el.textContent=n+'字'; el.className='char-count'+(n>=100&&n<=200?' ok':n>200?' over':'');
     alert('前回の入力を読み込みました。編集後に再提出してください。');
   } else {alert('入力が見つかりませんでした。新規として入力してください。');}
-}
-
-// 気づき：氏名・前回入力の読込
-function lookupKizukiStudent() {
-  const grade=document.getElementById('k-grade').value.trim();
-  const cls=document.getElementById('k-class').value.trim();
-  const num=document.getElementById('k-num').value.trim();
-  if(!grade||!cls||!num){alert('学年・クラス・出席番号を入力してから「氏名を読込」を押してください。');return;}
-  const rec=loadLocal().find(r=>r.id===makeId(grade,cls,num));
-  if(rec){
-    if(rec.name) document.getElementById('k-name').value=rec.name;
-    if(rec.kizuki) document.getElementById('k-kizuki').value=rec.kizuki;
-    alert('情報を読み込みました。');
-  } else {alert('入力が見つかりませんでした。氏名を入力してください。');}
-}
-
-// 気づき送信
-async function submitKizuki() {
-  const grade=document.getElementById('k-grade').value.trim();
-  const cls=document.getElementById('k-class').value.trim();
-  const num=document.getElementById('k-num').value.trim();
-  const name=document.getElementById('k-name').value.trim();
-  const kizuki=document.getElementById('k-kizuki').value.trim();
-  if(!grade||!cls||!num){alert('学年・クラス・出席番号を入力してください。');return;}
-  if(!name){alert('氏名を入力してください。');return;}
-  if(!kizuki){alert('気づきを記入してください。');return;}
-  const btn=document.getElementById('kizuki-submit-btn');
-  btn.disabled=true; btn.textContent='送信中…';
-  const now=new Date();
-  const kdt=now.toLocaleDateString('ja-JP')+' '+now.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
-  const id=makeId(grade,cls,num);
-  const record={id,grade,cls,num,name,kizuki,kdt};
-  const local=loadLocal();
-  const idx=local.findIndex(r=>r.id===id);
-  if(idx>=0){local[idx]=Object.assign({},local[idx],record);} else {local.push(record);}
-  saveLocal(local);
-  try {
-    const params=new URLSearchParams();
-    Object.entries(record).forEach(([k,v])=>params.append(k,String(v)));
-    await fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params.toString()});
-  } catch(e){console.error(e);}
-  btn.disabled=false; btn.textContent='💡 気づきを提出する';
-  document.getElementById('kizuki-msg-success').style.display='block';
-  setTimeout(()=>{document.getElementById('kizuki-msg-success').style.display='none';},5000);
 }
 
 // みんなの回答
@@ -669,8 +604,8 @@ function toggleDetail(i,btn){
 
 function exportCSV(){
   if(!gasData.length){alert('データがありません。');return;}
-  const header=['出席番号','学年','クラス','番号','氏名','AI場面①','AI場面②','AI場面③','AIが進化したら','学校への問い','提出日時','気づき','気づき提出日時'];
-  const rows=gasData.map(r=>[r.id,r.grade,r.cls,r.num,r.name,r.ai1||'',r.ai2||'',r.ai3||'',r.future||'',r.question||'',r.dt,r.kizuki||'',r.kdt||''].map(v=>`"${String(v).replace(/"/g,'""')}"`));
+  const header=['出席番号','学年','クラス','番号','氏名','AI場面①','AI場面②','AI場面③','AIが進化したら','学校への問い','気づき','提出日時'];
+  const rows=gasData.map(r=>[r.id,r.grade,r.cls,r.num,r.name,r.ai1||'',r.ai2||'',r.ai3||'',r.future||'',r.question||'',r.kizuki||'',r.dt].map(v=>`"${String(v).replace(/"/g,'""')}"`));
   const csv=[header,...rows].map(r=>r.join(',')).join('\n');
   const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a');
