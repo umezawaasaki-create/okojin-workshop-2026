@@ -354,12 +354,14 @@ async function typeText(el, text, speed) {
 }
 
 async function runAdviceAnalysis() {
-  if (!gasData.length) { alert('先に「↻ 更新」ボタンを押してデータを読み込んでください。'); return; }
   const btn    = document.getElementById('advice-btn');
   const status = document.getElementById('advice-status');
   const result = document.getElementById('advice-result');
   btn.disabled = true;
   result.innerHTML = '';
+  status.textContent = '⏳ データを取得しています...';
+  if (!gasData.length) { gasData = await fetchFromGAS(); }
+  if (!gasData.length) { status.textContent = '❌ データがありません。スプレッドシートに回答が入力されているか確認してください。'; btn.disabled = false; return; }
   status.textContent = '⏳ 生徒の回答をもとに授業アドバイスを生成しています...（30秒ほどかかります）';
 
   try {
@@ -425,12 +427,14 @@ async function runAdviceAnalysis() {
 }
 
 async function runDreamAnalysis() {
-  if (!gasData.length) { alert('先に「↻ 更新」ボタンを押してデータを読み込んでください。'); return; }
   const btn    = document.getElementById('dream-analyze-btn');
   const status = document.getElementById('dream-analysis-status');
   const result = document.getElementById('dream-analysis-result');
   btn.disabled = true;
   result.innerHTML = '';
+  status.textContent = '⏳ データを取得しています...';
+  if (!gasData.length) { gasData = await fetchFromGAS(); }
+  if (!gasData.length) { status.textContent = '❌ データがありません。'; btn.disabled = false; return; }
   status.textContent = '⏳ AIが将来の夢を分析しています...（30秒ほどかかります）';
 
   try {
@@ -506,12 +510,14 @@ async function runDreamAnalysis() {
 }
 
 async function runAnalysis() {
-  if (!gasData.length) { alert('先に「↻ 更新」ボタンを押してデータを読み込んでください。'); return; }
   const btn    = document.getElementById('analyze-btn');
   const status = document.getElementById('analysis-status');
   const result = document.getElementById('analysis-result');
   btn.disabled = true;
   result.innerHTML = '';
+  status.textContent = '⏳ データを取得しています...';
+  if (!gasData.length) { gasData = await fetchFromGAS(); }
+  if (!gasData.length) { status.textContent = '❌ データがありません。'; btn.disabled = false; return; }
   status.textContent = '⏳ AIが回答を分析しています...（30秒ほどかかります）';
 
   try {
