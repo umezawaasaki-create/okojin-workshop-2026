@@ -24,8 +24,11 @@ function showTab(t, btn) {
 function showAdminTab(t, btn) {
   document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('admin-list').style.display = t === 'list' ? '' : 'none';
+  document.getElementById('admin-list').style.display     = t === 'list'     ? '' : 'none';
   document.getElementById('admin-analysis').style.display = t === 'analysis' ? '' : 'none';
+  document.getElementById('admin-dream').style.display    = t === 'dream'    ? '' : 'none';
+  if (t === 'analysis') runAnalysis();
+  if (t === 'dream')    runDreamAnalysis();
 }
 
 // ── 字数カウント ─────────────────────────────────────────
@@ -89,7 +92,7 @@ async function submitForm() {
   const now = new Date();
   const dt  = now.toLocaleDateString('ja-JP') + ' ' + now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
   const id  = makeId(grade, cls, num);
-  const record = { id, grade, cls, num, name, ai1, ai2, ai3, future, question, job, kizuki, dt };
+  const record = { id, grade, cls, num, name, ai1, ai2, ai3, future, question, dt, job, kizuki };
 
   const local = loadLocal();
   const idx   = local.findIndex(r => r.id === id);
@@ -346,6 +349,87 @@ const GROUP_COLORS = [
 async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 async function typeText(el, text, speed) {
   for (let i = 0; i < text.length; i++) { el.textContent = text.slice(0, i + 1); await sleep(speed || 16); }
+}
+
+async function runDreamAnalysis() {
+  if (!gasData.length) { alert('先に「↻ 更新」ボタンを押してデータを読み込んでください。'); return; }
+  const btn    = document.getElementById('dream-analyze-btn');
+  const status = document.getElementById('dream-analysis-status');
+  const result = document.getElementById('dream-analysis-result');
+  btn.disabled = true;
+  result.innerHTML = '';
+  status.textContent = '⏳ AIが将来の夢を分析しています...（30秒ほどかかります）';
+
+  try {
+    const analysisResult = await new Promise(function (resolve, reject) {
+      const cbName = 'dream_' + Date.now();
+      const done   = { v: false };
+      window[cbName] = function (data) {
+        done.v = true;
+        resolve(data);
+        try { delete window[cbName]; } catch (e) {}
+        const el = document.getElementById('jsonp-' + cbName);
+        if (el) el.parentNode.removeChild(el);
+      };
+      const s  = document.createElement('script');
+      s.id     = 'jsonp-' + cbName;
+      s.src    = GAS_URL + '?action=analyzeDream&callback=' + cbName + '&_=' + Date.now();
+      s.onerror = function () { if (!done.v) { done.v = true; reject(new Error('通信エラー')); } };
+      document.body.appendChild(s);
+      setTimeout(function () { if (!done.v) { done.v = true; reject(new Error('タイムアウト')); } }, 60000);
+    });
+
+    if (analysisResult.error) { throw new Error(analysisResult.error); }
+
+    const text   = analysisResult.result;
+    const clean  = text.replace(/```json\n?|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    status.textContent = '✅ 分析完了！グループを表示しています...';
+
+    for (let gi = 0; gi < parsed.groups.length; gi++) {
+      const g   = parsed.groups[gi];
+      const col = GROUP_COLORS[gi % GROUP_COLORS.length];
+      const card = document.createElement('div');
+      card.className = 'analysis-group';
+      card.innerHTML = `
+        <div class="analysis-group-header" style="background:${col.bg}">
+          <span class="analysis-group-label" style="color:${col.text}">${esc(g.name)}</span>
+          <span class="analysis-group-count" style="background:${col.cbg};color:${col.ct}">${g.members.length}名</span>
+        </div>
+        <div class="analysis-group-body">
+          <div class="analysis-summary" id="dsummary-${gi}"></div>
+          <div class="analysis-members">${g.members.map(m => `<span class="analysis-member">${esc(m)}</span>`).join('')}</div>
+        </div>`;
+      result.appendChild(card);
+      await sleep(50);
+      card.classList.add('visible');
+      const summaryEl = document.getElementById('dsummary-' + gi);
+      summaryEl.innerHTML = '<span class="typing-cursor"></span>';
+      await sleep(200);
+      summaryEl.textContent = '';
+      await typeText(summaryEl, g.summary, 14);
+      await sleep(200);
+    }
+
+    const overallCard = document.createElement('div');
+    overallCard.className = 'analysis-overall';
+    overallCard.innerHTML = '<div class="analysis-overall-label">全体の傾向</div><div class="analysis-overall-text" id="doverall"></div>';
+    result.appendChild(overallCard);
+    await sleep(100);
+    overallCard.classList.add('visible');
+    const overallEl = document.getElementById('doverall');
+    overallEl.innerHTML = '<span class="typing-cursor"></span>';
+    await sleep(200);
+    overallEl.textContent = '';
+    await typeText(overallEl, parsed.overall, 12);
+    status.textContent = '✅ 分析完了！';
+
+  } catch (e) {
+    console.error(e);
+    status.textContent = '❌ 分析に失敗しました。もう一度お試しください。（' + e.message + ')';
+  }
+  btn.disabled = false;
 }
 
 async function runAnalysis() {
