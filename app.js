@@ -27,6 +27,7 @@ function showAdminTab(t, btn) {
   document.getElementById('admin-list').style.display     = t === 'list'     ? '' : 'none';
   document.getElementById('admin-analysis').style.display = t === 'analysis' ? '' : 'none';
   document.getElementById('admin-dream').style.display    = t === 'dream'    ? '' : 'none';
+  document.getElementById('admin-advice').style.display   = t === 'advice'   ? '' : 'none';
   if (t === 'analysis') runAnalysis();
   if (t === 'dream')    runDreamAnalysis();
 }
