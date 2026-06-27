@@ -30,6 +30,7 @@ function showAdminTab(t, btn) {
   document.getElementById('admin-advice').style.display   = t === 'advice'   ? '' : 'none';
   if (t === 'analysis') runAnalysis();
   if (t === 'dream')    runDreamAnalysis();
+  if (t === 'advice')   runAdviceAnalysis();
 }
 
 // ── 字数カウント ─────────────────────────────────────────
@@ -350,6 +351,77 @@ const GROUP_COLORS = [
 async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 async function typeText(el, text, speed) {
   for (let i = 0; i < text.length; i++) { el.textContent = text.slice(0, i + 1); await sleep(speed || 16); }
+}
+
+async function runAdviceAnalysis() {
+  if (!gasData.length) { alert('先に「↻ 更新」ボタンを押してデータを読み込んでください。'); return; }
+  const btn    = document.getElementById('advice-btn');
+  const status = document.getElementById('advice-status');
+  const result = document.getElementById('advice-result');
+  btn.disabled = true;
+  result.innerHTML = '';
+  status.textContent = '⏳ 生徒の回答をもとに授業アドバイスを生成しています...（30秒ほどかかります）';
+
+  try {
+    const analysisResult = await new Promise(function (resolve, reject) {
+      const cbName = 'advice_' + Date.now();
+      const done   = { v: false };
+      window[cbName] = function (data) {
+        done.v = true; resolve(data);
+        try { delete window[cbName]; } catch (e) {}
+        const el = document.getElementById('jsonp-' + cbName);
+        if (el) el.parentNode.removeChild(el);
+      };
+      const s  = document.createElement('script');
+      s.id     = 'jsonp-' + cbName;
+      s.src    = GAS_URL + '?action=analyzeAdvice&callback=' + cbName + '&_=' + Date.now();
+      s.onerror = function () { if (!done.v) { done.v = true; reject(new Error('通信エラー')); } };
+      document.body.appendChild(s);
+      setTimeout(function () { if (!done.v) { done.v = true; reject(new Error('タイムアウト')); } }, 90000);
+    });
+
+    if (analysisResult.error) { throw new Error(analysisResult.error); }
+
+    const text   = analysisResult.result;
+    const clean  = text.replace(/```json\n?|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    status.textContent = '✅ 生成完了！';
+    result.innerHTML = '';
+
+    const PHASE_STYLES = [
+      { bg: '#1E2761', badge: 'rgba(2,195,154,0.3)', badgeText: '#02C39A', label: 'Phase 0', title: '事前課題' },
+      { bg: '#028090', badge: 'rgba(255,255,255,0.25)', badgeText: '#fff',   label: 'Phase 1', title: '座学 90分' },
+      { bg: '#5a67d8', badge: 'rgba(255,255,255,0.25)', badgeText: '#fff',   label: 'Phase 2', title: 'NACK5スタジアム見学' },
+      { bg: '#744210', badge: 'rgba(255,255,255,0.25)', badgeText: '#fff',   label: 'Phase 3', title: 'プレゼン 90分' },
+    ];
+
+    parsed.phases.forEach(function (phase, i) {
+      const st = PHASE_STYLES[i] || PHASE_STYLES[PHASE_STYLES.length - 1];
+      const card = document.createElement('div');
+      card.style.cssText = 'background:#fff;border:1.5px solid #d1d9e0;border-radius:12px;overflow:hidden;margin-bottom:14px;opacity:0;transform:translateY(8px);transition:opacity .4s ease,transform .4s ease';
+      card.innerHTML = `
+        <div style="background:${st.bg};color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px">
+          <span style="background:${st.badge};color:${st.badgeText};font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px">${st.label}</span>
+          <span style="font-size:14px;font-weight:700">${esc(phase.title || st.title)}</span>
+        </div>
+        <div style="padding:16px 18px;font-size:12px;line-height:2;color:#374151">
+          <div style="font-weight:700;color:#028090;margin-bottom:6px">▍ねらい</div>
+          <p style="margin-bottom:14px">${esc(phase.goal)}</p>
+          <div style="font-weight:700;color:#028090;margin-bottom:6px">▍推奨アクティビティ・進行アドバイス</div>
+          <ul style="padding-left:18px;line-height:2.4;margin-bottom:14px">${phase.activities.map(a => `<li>${esc(a)}</li>`).join('')}</ul>
+          <div style="font-weight:700;color:#028090;margin-bottom:6px">▍この授業ならではのポイント（生徒の回答より）</div>
+          <div style="background:#f0f4f8;border-radius:8px;padding:12px 16px;line-height:2">${esc(phase.insight)}</div>
+        </div>`;
+      result.appendChild(card);
+      setTimeout(function () { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }, i * 120);
+    });
+
+  } catch (e) {
+    console.error(e);
+    status.textContent = '❌ 生成に失敗しました。もう一度お試しください。（' + e.message + ')';
+  }
+  btn.disabled = false;
 }
 
 async function runDreamAnalysis() {

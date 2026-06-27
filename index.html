@@ -146,115 +146,12 @@
       </div>
       <!-- 授業内容アドバイス -->
       <div id="admin-advice" style="display:none">
-        <div style="font-size:12px;color:#6b7280;margin-bottom:16px">大高人ワークショップ 2026 ― 全体の流れと進行アドバイス</div>
-
-        <!-- Phase 0: 事前課題 -->
-        <div style="background:#fff;border:1.5px solid #d1d9e0;border-radius:12px;overflow:hidden;margin-bottom:14px">
-          <div style="background:#1E2761;color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px">
-            <span style="background:rgba(2,195,154,0.3);color:#02C39A;font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px">Phase 0</span>
-            <span style="font-size:14px;font-weight:700">事前課題（ワークショップ前日まで）</span>
-          </div>
-          <div style="padding:16px 18px;font-size:12px;line-height:2;color:#374151">
-            <div style="font-weight:700;color:#028090;margin-bottom:6px">▍目的</div>
-            <p style="margin-bottom:12px">生徒が「AIへの違和感・問い」を自分の言葉で言語化し、ワークショップ当日の対話の土台をつくる。</p>
-            <div style="font-weight:700;color:#028090;margin-bottom:6px">▍課題内容</div>
-            <table style="width:100%;font-size:12px;border-collapse:collapse;margin-bottom:12px">
-              <tr style="background:#f9fafb"><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600;width:38%">①AI場面（Diverge）</td><td style="padding:6px 10px;border:1px solid #e5e7eb">日常でAIが使われている／使えそうな場面を3つ挙げる</td></tr>
-              <tr><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">②もしAIが進化したら（Converge）</td><td style="padding:6px 10px;border:1px solid #e5e7eb">①から1つ選び100〜200字で記述</td></tr>
-              <tr style="background:#f9fafb"><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">③学校への問い（Question）</td><td style="padding:6px 10px;border:1px solid #e5e7eb">授業・部活・進路・先生の業務などで「もっと良くできそう」なことを1つ</td></tr>
-              <tr><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">④将来の夢・職業</td><td style="padding:6px 10px;border:1px solid #e5e7eb">職業名または「やりたいこと」を自由記述</td></tr>
-            </table>
-            <div style="font-weight:700;color:#028090;margin-bottom:6px">▍進行メモ</div>
-            <ul style="padding-left:18px;line-height:2.2">
-              <li>管理タブの「AIへの関心分析」「将来の夢の傾向分析」で事前に傾向をつかんでおく</li>
-              <li>回答が少ない場合は当日の冒頭15分を記入時間として確保する</li>
-              <li>「みんなの回答」タブをプロジェクターに映し、全員の回答を可視化してから授業を開始すると効果的</li>
-            </ul>
-          </div>
+        <div style="margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <button class="submit-btn" id="advice-btn" onclick="runAdviceAnalysis()">✨ 分析する</button>
+          <span style="font-size:12px;color:#6b7280">生徒の回答をもとに授業アドバイスを生成します</span>
         </div>
-
-        <!-- Phase 1: 座学90分 -->
-        <div style="background:#fff;border:1.5px solid #d1d9e0;border-radius:12px;overflow:hidden;margin-bottom:14px">
-          <div style="background:#028090;color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px">
-            <span style="background:rgba(255,255,255,0.25);font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px">Phase 1</span>
-            <span style="font-size:14px;font-weight:700">座学 90分 ― 問いを立てる</span>
-          </div>
-          <div style="padding:16px 18px;font-size:12px;line-height:2;color:#374151">
-            <div style="font-weight:700;color:#028090;margin-bottom:8px">▍タイムライン</div>
-            <table style="width:100%;font-size:12px;border-collapse:collapse;margin-bottom:14px">
-              <thead><tr style="background:#f0f4f8"><th style="padding:6px 10px;border:1px solid #e5e7eb;text-align:left;width:22%">時間</th><th style="padding:6px 10px;border:1px solid #e5e7eb;text-align:left">内容</th><th style="padding:6px 10px;border:1px solid #e5e7eb;text-align:left;width:28%">ポイント</th></tr></thead>
-              <tbody>
-                <tr><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">0:00〜0:10</td><td style="padding:6px 10px;border:1px solid #e5e7eb">オープニング・アイスブレイク</td><td style="padding:6px 10px;border:1px solid #e5e7eb">「みんなの回答」をスクリーンに表示して共有</td></tr>
-                <tr style="background:#f9fafb"><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">0:10〜0:25</td><td style="padding:6px 10px;border:1px solid #e5e7eb">インプット：AIとデザイン思考の基礎</td><td style="padding:6px 10px;border:1px solid #e5e7eb">「発散→収束→問い」のフレームを説明</td></tr>
-                <tr><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">0:25〜0:45</td><td style="padding:6px 10px;border:1px solid #e5e7eb">グループワーク①：事前課題をもとに問いを深める</td><td style="padding:6px 10px;border:1px solid #e5e7eb">4〜5人班。「なぜ？」を3回繰り返して本質的な問いへ</td></tr>
-                <tr style="background:#f9fafb"><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">0:45〜1:05</td><td style="padding:6px 10px;border:1px solid #e5e7eb">グループワーク②：HMW（どうすればできる？）で解決案を発散</td><td style="padding:6px 10px;border:1px solid #e5e7eb">付箋1枚1アイデア。量を重視・評価しない</td></tr>
-                <tr><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">1:05〜1:20</td><td style="padding:6px 10px;border:1px solid #e5e7eb">全体共有・クラスの問いを絞る</td><td style="padding:6px 10px;border:1px solid #e5e7eb">各班1分発表。似た問いをグルーピングしてテーマを可視化</td></tr>
-                <tr style="background:#f9fafb"><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">1:20〜1:30</td><td style="padding:6px 10px;border:1px solid #e5e7eb">見学に向けた「観察の視点」設定</td><td style="padding:6px 10px;border:1px solid #e5e7eb">スタジアムで何に注目するかを班ごとに決める</td></tr>
-              </tbody>
-            </table>
-            <div style="font-weight:700;color:#028090;margin-bottom:6px">▍進行メモ</div>
-            <ul style="padding-left:18px;line-height:2.2">
-              <li>AI分析タブの結果を印刷またはスクリーン共有し、冒頭のインプットに活用する</li>
-              <li>グループワーク中は「正解を探さない」ことを繰り返し伝える</li>
-              <li>将来の夢と問いのテーマが重なる生徒を意識的に同じ班にすると対話が深まる</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Phase 2: スタジアム見学 -->
-        <div style="background:#fff;border:1.5px solid #d1d9e0;border-radius:12px;overflow:hidden;margin-bottom:14px">
-          <div style="background:#5a67d8;color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px">
-            <span style="background:rgba(255,255,255,0.25);font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px">Phase 2</span>
-            <span style="font-size:14px;font-weight:700">NACK5スタジアム見学 ― 現場で違和感を探す</span>
-          </div>
-          <div style="padding:16px 18px;font-size:12px;line-height:2;color:#374151">
-            <div style="font-weight:700;color:#028090;margin-bottom:8px">▍タイムライン（目安）</div>
-            <table style="width:100%;font-size:12px;border-collapse:collapse;margin-bottom:14px">
-              <thead><tr style="background:#f0f4f8"><th style="padding:6px 10px;border:1px solid #e5e7eb;text-align:left;width:22%">時間</th><th style="padding:6px 10px;border:1px solid #e5e7eb;text-align:left">内容</th><th style="padding:6px 10px;border:1px solid #e5e7eb;text-align:left;width:28%">ポイント</th></tr></thead>
-              <tbody>
-                <tr><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">移動・入場</td><td style="padding:6px 10px;border:1px solid #e5e7eb">オリエンテーション・観察ミッション配布</td><td style="padding:6px 10px;border:1px solid #e5e7eb">班ごとの観察テーマを再確認</td></tr>
-                <tr style="background:#f9fafb"><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">施設見学①</td><td style="padding:6px 10px;border:1px solid #e5e7eb">スタジアム全体・バックヤード見学</td><td style="padding:6px 10px;border:1px solid #e5e7eb">写真・メモで「違和感」を記録。AIで改善できそうな点に着目</td></tr>
-                <tr><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">施設見学②</td><td style="padding:6px 10px;border:1px solid #e5e7eb">スタッフへのミニインタビュー</td><td style="padding:6px 10px;border:1px solid #e5e7eb">「一番大変な業務は？」「AIに任せたい作業は？」を質問</td></tr>
-                <tr style="background:#f9fafb"><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">振り返り</td><td style="padding:6px 10px;border:1px solid #e5e7eb">班ごとに気づきを3つ付箋に書き出す</td><td style="padding:6px 10px;border:1px solid #e5e7eb">「驚いたこと」「疑問」「AIで解決できそうなこと」</td></tr>
-              </tbody>
-            </table>
-            <div style="font-weight:700;color:#028090;margin-bottom:6px">▍観察の視点（例）</div>
-            <ul style="padding-left:18px;line-height:2.2">
-              <li>チケット販売・入場管理の効率化にAIは使えるか？</li>
-              <li>スタジアムの安全管理（混雑・転倒）をAIはどう支援できるか？</li>
-              <li>選手のコンディション管理・戦術分析へのAI活用</li>
-              <li>飲食・売店の在庫・需要予測にAIを使うと？</li>
-              <li>障がいのある来場者へのAIサポートの可能性</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Phase 3: プレゼン90分 -->
-        <div style="background:#fff;border:1.5px solid #d1d9e0;border-radius:12px;overflow:hidden;margin-bottom:14px">
-          <div style="background:#744210;color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px">
-            <span style="background:rgba(255,255,255,0.25);font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px">Phase 3</span>
-            <span style="font-size:14px;font-weight:700">プレゼン 90分 ― 問いを発表・深化させる</span>
-          </div>
-          <div style="padding:16px 18px;font-size:12px;line-height:2;color:#374151">
-            <div style="font-weight:700;color:#028090;margin-bottom:8px">▍タイムライン</div>
-            <table style="width:100%;font-size:12px;border-collapse:collapse;margin-bottom:14px">
-              <thead><tr style="background:#f0f4f8"><th style="padding:6px 10px;border:1px solid #e5e7eb;text-align:left;width:22%">時間</th><th style="padding:6px 10px;border:1px solid #e5e7eb;text-align:left">内容</th><th style="padding:6px 10px;border:1px solid #e5e7eb;text-align:left;width:28%">ポイント</th></tr></thead>
-              <tbody>
-                <tr><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">0:00〜0:25</td><td style="padding:6px 10px;border:1px solid #e5e7eb">発表準備：スライド・ポスター作成</td><td style="padding:6px 10px;border:1px solid #e5e7eb">①問い　②現状の課題　③AIを使った解決案　④懸念点　の4点を整理</td></tr>
-                <tr style="background:#f9fafb"><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">0:25〜1:05</td><td style="padding:6px 10px;border:1px solid #e5e7eb">班発表（1班3分＋質疑2分）</td><td style="padding:6px 10px;border:1px solid #e5e7eb">「みんなの回答」タブのプレゼンモードと併用して個人の事前課題も紹介</td></tr>
-                <tr><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">1:05〜1:20</td><td style="padding:6px 10px;border:1px solid #e5e7eb">全体振り返り・クロージング</td><td style="padding:6px 10px;border:1px solid #e5e7eb">AI分析タブを表示し、クラス全体の傾向をフィードバック</td></tr>
-                <tr style="background:#f9fafb"><td style="padding:6px 10px;border:1px solid #e5e7eb;font-weight:600">1:20〜1:30</td><td style="padding:6px 10px;border:1px solid #e5e7eb">「気づき」をアプリに追記して再提出</td><td style="padding:6px 10px;border:1px solid #e5e7eb">「↩ 前回読込」で自分の回答を呼び出し、気づき欄に追記</td></tr>
-              </tbody>
-            </table>
-            <div style="font-weight:700;color:#028090;margin-bottom:6px">▍発表フレームワーク（生徒へ共有）</div>
-            <div style="background:#f0f4f8;border-radius:8px;padding:12px 16px;line-height:2.4">
-              <span style="font-weight:700">①問い：</span>「〇〇という場面で、△△が課題だ」<br>
-              <span style="font-weight:700">②現状：</span>スタジアム見学で気づいた具体的な課題・違和感<br>
-              <span style="font-weight:700">③解決案：</span>「もしAIが〜なら、□□できる」<br>
-              <span style="font-weight:700">④懸念・問い直し：</span>AIに任せることで失われるものは何か？
-            </div>
-          </div>
-        </div>
+        <div id="advice-status" style="font-size:13px;color:#6b7280;margin-bottom:16px;min-height:20px"></div>
+        <div id="advice-result"></div>
       </div>
 
       <!-- 将来の夢の傾向分析 -->
