@@ -96,7 +96,7 @@ async function submitForm() {
   const now = new Date();
   const dt  = now.toLocaleDateString('ja-JP') + ' ' + now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
   const id  = makeId(grade, cls, num);
-  const record = { id, grade, cls, num, name, ai1, ai2, ai3, future, idea, dt, job, hansei, kizuki1, kizuki };
+  const record = { id, grade, cls, num, name, ai1, ai2, ai3, future, idea, dt, job, kizuki, hansei, kizuki1 };
 
   const local = loadLocal();
   const idx   = local.findIndex(r => r.id === id);
