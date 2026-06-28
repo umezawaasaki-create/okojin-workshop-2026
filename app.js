@@ -82,6 +82,7 @@ async function submitForm() {
   const idea = document.getElementById('f-idea').value.trim();
   const job      = document.getElementById('f-job').value.trim();
   const hansei   = document.getElementById('f-hansei').value.trim();
+  const nack5    = document.getElementById('f-nack5').value.trim();
   const kizuki1  = document.getElementById('f-kizuki1').value.trim();
   const kizuki   = document.getElementById('f-kizuki').value.trim();
 
@@ -96,7 +97,7 @@ async function submitForm() {
   const now = new Date();
   const dt  = now.toLocaleDateString('ja-JP') + ' ' + now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
   const id  = makeId(grade, cls, num);
-  const record = { id, grade, cls, num, name, ai1, ai2, ai3, future, idea, dt, job, kizuki, hansei, kizuki1 };
+  const record = { id, grade, cls, num, name, ai1, ai2, ai3, future, idea, dt, job, kizuki, hansei, nack5, kizuki1 };
 
   const local = loadLocal();
   const idx   = local.findIndex(r => r.id === id);
@@ -116,7 +117,7 @@ async function submitForm() {
 
 // ── クリア ───────────────────────────────────────────────
 function clearForm() {
-  ['f-grade','f-class','f-num','f-name','f-ai1','f-ai2','f-ai3','f-future','f-idea','f-job','f-hansei','f-kizuki1','f-kizuki']
+  ['f-grade','f-class','f-num','f-name','f-ai1','f-ai2','f-ai3','f-future','f-idea','f-job','f-hansei','f-nack5','f-kizuki1','f-kizuki']
     .forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('char-count').textContent = '0字';
   document.getElementById('char-count').className = 'char-count';
@@ -138,6 +139,7 @@ function lookupStudent() {
     document.getElementById('f-idea').value = rec.idea || '';
     document.getElementById('f-job').value      = rec.job      || '';
     document.getElementById('f-hansei').value   = rec.hansei   || '';
+    document.getElementById('f-nack5').value    = rec.nack5    || '';
     document.getElementById('f-kizuki1').value  = rec.kizuki1  || '';
     document.getElementById('f-kizuki').value   = rec.kizuki   || '';
     const n  = (rec.future || '').length;
@@ -204,6 +206,10 @@ function applyFilter() {
           <div class="card-section-label">AIと話してみて</div>
           <div class="card-section-text">${esc(r.hansei).replace(/\n/g, '<br>')}</div>
         </div>` : ''}
+        ${r.nack5 ? `<div class="card-section">
+          <div class="card-section-label">NACK5ビジネスアイデア</div>
+          <div class="card-section-text">${esc(r.nack5).replace(/\n/g, '<br>')}</div>
+        </div>` : ''}
         ${r.kizuki ? `<div class="card-section">
           <div class="card-section-label">気づき（事前課題終了時点）</div>
           <div class="card-section-text">${esc(r.kizuki).replace(/\n/g, '<br>')}</div>
@@ -255,6 +261,10 @@ function renderPresent() {
     ${r.hansei ? `<div class="present-section">
       <div class="present-label">AIと話してみて</div>
       <div class="present-text">${esc(r.hansei).replace(/\n/g, '<br>')}</div>
+    </div>` : ''}
+    ${r.nack5 ? `<div class="present-section">
+      <div class="present-label">NACK5ビジネスアイデア</div>
+      <div class="present-text">${esc(r.nack5).replace(/\n/g, '<br>')}</div>
     </div>` : ''}
     ${r.kizuki ? `<div class="present-section">
       <div class="present-label">気づき（事前課題終了時点）</div>
@@ -321,6 +331,7 @@ function renderTable() {
         <strong>アイデア</strong><br>${esc(r.idea || '').replace(/\n/g, '<br>')}<br><br>
         <strong>将来の夢・職業</strong>　${esc(r.job || '（未記入）')}<br><br>
         <strong>AIと話してみて</strong><br>${esc(r.hansei || '（未記入）').replace(/\n/g, '<br>')}<br><br>
+        <strong>NACK5ビジネスアイデア</strong><br>${esc(r.nack5 || '（未記入）').replace(/\n/g, '<br>')}<br><br>
         <strong>気づき（第１回授業後）</strong><br>${esc(r.kizuki1 || '（未記入）').replace(/\n/g, '<br>')}<br><br>
         <strong>気づき（事前課題終了時点）</strong><br>${esc(r.kizuki || '（未提出）').replace(/\n/g, '<br>')}
       </td>
@@ -341,8 +352,8 @@ function toggleDetail(i, btn) {
 
 function exportCSV() {
   if (!gasData.length) { alert('データがありません。'); return; }
-  const header = ['出席番号','学年','クラス','番号','氏名','AI場面①','AI場面②','AI場面③','AIが進化したら','アイデア','将来の夢・職業','AIと話してみて','気づき（第１回授業後）','気づき（事前課題終了時点）','提出日時'];
-  const rows   = gasData.map(r => [r.id, r.grade, r.cls, r.num, r.name, r.ai1||'', r.ai2||'', r.ai3||'', r.future||'', r.idea||'', r.job||'', r.hansei||'', r.kizuki1||'', r.kizuki||'', r.dt]
+  const header = ['出席番号','学年','クラス','番号','氏名','AI場面①','AI場面②','AI場面③','AIが進化したら','アイデア','将来の夢・職業','AIと話してみて','NACK5ビジネスアイデア','気づき（第１回授業後）','気づき（事前課題終了時点）','提出日時'];
+  const rows   = gasData.map(r => [r.id, r.grade, r.cls, r.num, r.name, r.ai1||'', r.ai2||'', r.ai3||'', r.future||'', r.idea||'', r.job||'', r.hansei||'', r.nack5||'', r.kizuki1||'', r.kizuki||'', r.dt]
     .map(v => `"${String(v).replace(/"/g, '""')}"`));
   const csv    = [header, ...rows].map(r => r.join(',')).join('\n');
   const blob   = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
