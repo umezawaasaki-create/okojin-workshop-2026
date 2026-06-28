@@ -88,7 +88,7 @@ async function submitForm() {
   if (!grade || !cls || !num) { alert('学年・クラス・出席番号を入力してください。'); return; }
   if (!name)     { alert('氏名を入力してください。'); return; }
   if (!future)   { alert('「もしAIがさらに進化したら？」を記入してください。'); return; }
-  if (!idea) { alert('学校への問いを記入してください。'); return; }
+  if (!idea) { alert('アイデアを記入してください。'); return; }
 
   const btn = document.getElementById('submit-btn');
   btn.disabled = true; btn.textContent = '送信中…';
@@ -193,20 +193,16 @@ function applyFilter() {
           <div class="card-section-text">${esc(r.future || '').replace(/\n/g, '<br>')}</div>
         </div>
         <div class="card-section">
-          <div class="card-section-label">学校への問い</div>
+          <div class="card-section-label">アイデア</div>
           <div class="card-section-text">${esc(r.idea || '').replace(/\n/g, '<br>')}</div>
         </div>
-        ${r.job ? `<div class="card-section">
-          <div class="card-section-label">将来の夢・職業</div>
-          <div class="card-section-text">${esc(r.job)}</div>
+        ${r.kizuki1 ? `<div class="card-section">
+          <div class="card-section-label">気づき（第１回授業後）</div>
+          <div class="card-section-text">${esc(r.kizuki1).replace(/\n/g, '<br>')}</div>
         </div>` : ''}
         ${r.hansei ? `<div class="card-section">
           <div class="card-section-label">AIと話してみて</div>
           <div class="card-section-text">${esc(r.hansei).replace(/\n/g, '<br>')}</div>
-        </div>` : ''}
-        ${r.kizuki1 ? `<div class="card-section">
-          <div class="card-section-label">気づき（第１回授業後）</div>
-          <div class="card-section-text">${esc(r.kizuki1).replace(/\n/g, '<br>')}</div>
         </div>` : ''}
         ${r.kizuki ? `<div class="card-section">
           <div class="card-section-label">気づき（事前課題終了時点）</div>
@@ -249,20 +245,16 @@ function renderPresent() {
       <div class="present-text">${esc(r.future || '').replace(/\n/g, '<br>')}</div>
     </div>
     <div class="present-section">
-      <div class="present-label">学校への問い</div>
+      <div class="present-label">アイデア</div>
       <div class="present-text">${esc(r.idea || '').replace(/\n/g, '<br>')}</div>
     </div>
-    ${r.job ? `<div class="present-section">
-      <div class="present-label">将来の夢・職業</div>
-      <div class="present-text">${esc(r.job)}</div>
+    ${r.kizuki1 ? `<div class="present-section">
+      <div class="present-label">気づき（第１回授業後）</div>
+      <div class="present-text">${esc(r.kizuki1).replace(/\n/g, '<br>')}</div>
     </div>` : ''}
     ${r.hansei ? `<div class="present-section">
       <div class="present-label">AIと話してみて</div>
       <div class="present-text">${esc(r.hansei).replace(/\n/g, '<br>')}</div>
-    </div>` : ''}
-    ${r.kizuki1 ? `<div class="present-section">
-      <div class="present-label">気づき（第１回授業後）</div>
-      <div class="present-text">${esc(r.kizuki1).replace(/\n/g, '<br>')}</div>
     </div>` : ''}
     ${r.kizuki ? `<div class="present-section">
       <div class="present-label">気づき（事前課題終了時点）</div>
@@ -326,7 +318,7 @@ function renderTable() {
         <strong>AI場面②</strong>　${esc(r.ai2 || '—')}<br>
         <strong>AI場面③</strong>　${esc(r.ai3 || '—')}<br><br>
         <strong>もしAIが進化したら</strong><br>${esc(r.future || '').replace(/\n/g, '<br>')}<br><br>
-        <strong>学校への問い</strong><br>${esc(r.idea || '').replace(/\n/g, '<br>')}<br><br>
+        <strong>アイデア</strong><br>${esc(r.idea || '').replace(/\n/g, '<br>')}<br><br>
         <strong>将来の夢・職業</strong>　${esc(r.job || '（未記入）')}<br><br>
         <strong>AIと話してみて</strong><br>${esc(r.hansei || '（未記入）').replace(/\n/g, '<br>')}<br><br>
         <strong>気づき（第１回授業後）</strong><br>${esc(r.kizuki1 || '（未記入）').replace(/\n/g, '<br>')}<br><br>
