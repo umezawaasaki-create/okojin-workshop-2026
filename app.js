@@ -79,7 +79,7 @@ async function submitForm() {
   const ai2      = document.getElementById('f-ai2').value.trim();
   const ai3      = document.getElementById('f-ai3').value.trim();
   const future   = document.getElementById('f-future').value.trim();
-  const question = document.getElementById('f-question').value.trim();
+  const idea = document.getElementById('f-idea').value.trim();
   const job      = document.getElementById('f-job').value.trim();
   const hansei   = document.getElementById('f-hansei').value.trim();
   const kizuki   = document.getElementById('f-kizuki').value.trim();
@@ -87,7 +87,7 @@ async function submitForm() {
   if (!grade || !cls || !num) { alert('学年・クラス・出席番号を入力してください。'); return; }
   if (!name)     { alert('氏名を入力してください。'); return; }
   if (!future)   { alert('「もしAIがさらに進化したら？」を記入してください。'); return; }
-  if (!question) { alert('学校への問いを記入してください。'); return; }
+  if (!idea) { alert('学校への問いを記入してください。'); return; }
 
   const btn = document.getElementById('submit-btn');
   btn.disabled = true; btn.textContent = '送信中…';
@@ -95,7 +95,7 @@ async function submitForm() {
   const now = new Date();
   const dt  = now.toLocaleDateString('ja-JP') + ' ' + now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
   const id  = makeId(grade, cls, num);
-  const record = { id, grade, cls, num, name, ai1, ai2, ai3, future, question, dt, job, hansei, kizuki };
+  const record = { id, grade, cls, num, name, ai1, ai2, ai3, future, idea, dt, job, hansei, kizuki };
 
   const local = loadLocal();
   const idx   = local.findIndex(r => r.id === id);
@@ -115,7 +115,7 @@ async function submitForm() {
 
 // ── クリア ───────────────────────────────────────────────
 function clearForm() {
-  ['f-grade','f-class','f-num','f-name','f-ai1','f-ai2','f-ai3','f-future','f-question','f-job','f-hansei','f-kizuki']
+  ['f-grade','f-class','f-num','f-name','f-ai1','f-ai2','f-ai3','f-future','f-idea','f-job','f-hansei','f-kizuki']
     .forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('char-count').textContent = '0字';
   document.getElementById('char-count').className = 'char-count';
@@ -134,7 +134,7 @@ function lookupStudent() {
     document.getElementById('f-ai2').value     = rec.ai2     || '';
     document.getElementById('f-ai3').value     = rec.ai3     || '';
     document.getElementById('f-future').value  = rec.future  || '';
-    document.getElementById('f-question').value = rec.question || '';
+    document.getElementById('f-idea').value = rec.idea || '';
     document.getElementById('f-job').value      = rec.job      || '';
     document.getElementById('f-hansei').value   = rec.hansei   || '';
     document.getElementById('f-kizuki').value   = rec.kizuki   || '';
@@ -192,7 +192,7 @@ function applyFilter() {
         </div>
         <div class="card-section">
           <div class="card-section-label">学校への問い</div>
-          <div class="card-section-text">${esc(r.question || '').replace(/\n/g, '<br>')}</div>
+          <div class="card-section-text">${esc(r.idea || '').replace(/\n/g, '<br>')}</div>
         </div>
         ${r.job ? `<div class="card-section">
           <div class="card-section-label">将来の夢・職業</div>
@@ -244,7 +244,7 @@ function renderPresent() {
     </div>
     <div class="present-section">
       <div class="present-label">学校への問い</div>
-      <div class="present-text">${esc(r.question || '').replace(/\n/g, '<br>')}</div>
+      <div class="present-text">${esc(r.idea || '').replace(/\n/g, '<br>')}</div>
     </div>
     ${r.job ? `<div class="present-section">
       <div class="present-label">将来の夢・職業</div>
@@ -306,7 +306,7 @@ function renderTable() {
       <td class="col-name" title="${esc(r.name)}">${esc(r.name)}</td>
       <td class="col-cls">${esc(r.grade || '')}年${esc(r.cls || '')}組</td>
       <td class="col-ai1" title="${esc(r.ai1 || '')}">${esc(r.ai1 || '—')}</td>
-      <td class="col-q" title="${esc(r.question || '')}">${esc((r.question || '').substring(0, 35) + ((r.question || '').length > 35 ? '…' : ''))}</td>
+      <td class="col-q" title="${esc(r.idea || '')}">${esc((r.idea || '').substring(0, 35) + ((r.idea || '').length > 35 ? '…' : ''))}</td>
       <td class="col-dt">${esc(r.dt || '')}</td>
       <td class="col-act" style="text-align:center"><button class="expand-btn" onclick="toggleDetail(${i},this)">▾</button></td>
     </tr>
@@ -316,7 +316,7 @@ function renderTable() {
         <strong>AI場面②</strong>　${esc(r.ai2 || '—')}<br>
         <strong>AI場面③</strong>　${esc(r.ai3 || '—')}<br><br>
         <strong>もしAIが進化したら</strong><br>${esc(r.future || '').replace(/\n/g, '<br>')}<br><br>
-        <strong>学校への問い</strong><br>${esc(r.question || '').replace(/\n/g, '<br>')}<br><br>
+        <strong>学校への問い</strong><br>${esc(r.idea || '').replace(/\n/g, '<br>')}<br><br>
         <strong>将来の夢・職業</strong>　${esc(r.job || '（未記入）')}<br><br>
         <strong>AIと話してみて</strong><br>${esc(r.hansei || '（未記入）').replace(/\n/g, '<br>')}<br><br>
         <strong>気づき・考えたこと</strong><br>${esc(r.kizuki || '（未提出）').replace(/\n/g, '<br>')}
@@ -339,7 +339,7 @@ function toggleDetail(i, btn) {
 function exportCSV() {
   if (!gasData.length) { alert('データがありません。'); return; }
   const header = ['出席番号','学年','クラス','番号','氏名','AI場面①','AI場面②','AI場面③','AIが進化したら','学校への問い','将来の夢・職業','AIと話してみて','気づき','提出日時'];
-  const rows   = gasData.map(r => [r.id, r.grade, r.cls, r.num, r.name, r.ai1||'', r.ai2||'', r.ai3||'', r.future||'', r.question||'', r.job||'', r.hansei||'', r.kizuki||'', r.dt]
+  const rows   = gasData.map(r => [r.id, r.grade, r.cls, r.num, r.name, r.ai1||'', r.ai2||'', r.ai3||'', r.future||'', r.idea||'', r.job||'', r.hansei||'', r.kizuki||'', r.dt]
     .map(v => `"${String(v).replace(/"/g, '""')}"`));
   const csv    = [header, ...rows].map(r => r.join(',')).join('\n');
   const blob   = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
