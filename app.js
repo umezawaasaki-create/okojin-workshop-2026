@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
 // ── ローカルストレージ ───────────────────────────────────
 function loadLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch { return []; } }
 function saveLocal(d) { localStorage.setItem(LS_KEY, JSON.stringify(d)); }
-function makeId(g, c, n) { return g + '-' + c + '-' + n; }
+function makeId(c, n) { return c + '-' + n; }
 
 // ── GASからデータ取得（JSONP） ──────────────────────────
 function fetchFromGAS() {
@@ -71,7 +71,7 @@ function fetchFromGAS() {
 
 // ── フォーム送信 ─────────────────────────────────────────
 async function submitForm() {
-  const grade    = document.getElementById('f-grade').value.trim();
+  const grade    = '1';
   const cls      = document.getElementById('f-class').value.trim();
   const num      = document.getElementById('f-num').value.trim();
   const name     = document.getElementById('f-name').value.trim();
@@ -86,7 +86,7 @@ async function submitForm() {
   const kizuki1  = document.getElementById('f-kizuki1').value.trim();
   const kizuki   = document.getElementById('f-kizuki').value.trim();
 
-  if (!grade || !cls || !num) { alert('学年・クラス・出席番号を入力してください。'); return; }
+  if (!cls || !num) { alert('クラス・出席番号を入力してください。'); return; }
   if (!name)     { alert('氏名を入力してください。'); return; }
   if (!future)   { alert('「もしAIがさらに進化したら？」を記入してください。'); return; }
   if (!idea) { alert('アイデアを記入してください。'); return; }
@@ -96,11 +96,11 @@ async function submitForm() {
 
   const now = new Date();
   const dt  = now.toLocaleDateString('ja-JP') + ' ' + now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-  const id  = makeId(grade, cls, num);
-  const record = { id, grade, cls, num, name, ai1, ai2, ai3, future, idea, dt, job, kizuki, hansei, nack5, kizuki1 };
+  const id  = makeId(cls, num);
+  const record = { cls, num, name, ai1, ai2, ai3, future, idea, dt, job, kizuki, hansei, nack5, kizuki1 };
 
   const local = loadLocal();
-  const idx   = local.findIndex(r => r.id === id);
+  const idx   = local.findIndex(r => r.cls === cls && r.num === num);
   if (idx >= 0) local[idx] = record; else local.push(record);
   saveLocal(local);
 
@@ -117,7 +117,7 @@ async function submitForm() {
 
 // ── クリア ───────────────────────────────────────────────
 function clearForm() {
-  ['f-grade','f-class','f-num','f-name','f-ai1','f-ai2','f-ai3','f-future','f-idea','f-job','f-hansei','f-nack5','f-kizuki1','f-kizuki']
+  ['f-class','f-num','f-name','f-ai1','f-ai2','f-ai3','f-future','f-idea','f-job','f-hansei','f-nack5','f-kizuki1','f-kizuki']
     .forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('char-count').textContent = '0字';
   document.getElementById('char-count').className = 'char-count';
@@ -125,11 +125,11 @@ function clearForm() {
 
 // ── 前回読込 ─────────────────────────────────────────────
 function lookupStudent() {
-  const grade = document.getElementById('f-grade').value.trim();
+  const grade = '1';
   const cls   = document.getElementById('f-class').value.trim();
   const num   = document.getElementById('f-num').value.trim();
-  if (!grade || !cls || !num) { alert('学年・クラス・出席番号を入力してから「前回読込」を押してください。'); return; }
-  const rec = loadLocal().find(r => r.id === makeId(grade, cls, num));
+  if (!cls || !num) { alert('クラス・出席番号を入力してから「前回読込」を押してください。'); return; }
+  const rec = loadLocal().find(r => r.cls === cls && r.num === num);
   if (rec) {
     document.getElementById('f-name').value    = rec.name    || '';
     document.getElementById('f-ai1').value     = rec.ai1     || '';
@@ -165,14 +165,14 @@ async function loadGallery() {
 function applyFilter() {
   const q   = (document.getElementById('gallery-search').value || '').toLowerCase();
   const cls = document.getElementById('class-filter').value;
-  const classes = [...new Set(gasData.map(r => r.grade + '年' + r.cls + '組').filter(Boolean))].sort();
+  const classes = [...new Set(gasData.map(r => r.cls + '組').filter(Boolean))].sort((a,b) => parseInt(a)-parseInt(b));
   const sel = document.getElementById('class-filter');
   const cur = sel.value;
   sel.innerHTML = '<option value="">全クラス</option>' + classes.map(c => `<option value="${c}"${c === cur ? ' selected' : ''}>${c}</option>`).join('');
   let filtered = gasData;
-  if (cls)  filtered = filtered.filter(r => (r.grade + '年' + r.cls + '組') === cls);
+  if (cls)  filtered = filtered.filter(r => (r.cls + '組') === cls);
   if (q)    filtered = filtered.filter(r => JSON.stringify(r).toLowerCase().includes(q));
-  filtered = filtered.slice().sort((a, b) => String(a.id).localeCompare(String(b.id)));
+  filtered = filtered.slice().sort((a, b) => String(a.cls).localeCompare(String(b.cls), 'ja', {numeric:true}) || String(a.num).localeCompare(String(b.num), 'ja', {numeric:true}));
   presentList = filtered;
   document.getElementById('gallery-count').textContent = filtered.length + '件';
   const grid  = document.getElementById('gallery-grid');
@@ -183,7 +183,7 @@ function applyFilter() {
     <div class="student-card" onclick="openPresent(${i})">
       <div class="student-card-header">
         <div class="student-card-name">${esc(r.name)}</div>
-        <div class="student-card-id">${esc(r.grade)}年${esc(r.cls)}組 ${esc(r.num)}番</div>
+        <div class="student-card-id">${esc(r.cls)}組 ${esc(r.num)}番</div>
       </div>
       <div class="student-card-body">
         <div class="card-section">
@@ -240,7 +240,7 @@ function renderPresent() {
   const r = presentList[presentIndex];
   if (!r) return;
   document.getElementById('present-name').textContent = r.name;
-  document.getElementById('present-id').textContent   = `${r.grade}年${r.cls}組 ${r.num}番`;
+  document.getElementById('present-id').textContent   = `${r.cls}組 ${r.num}番`;
   document.getElementById('present-body').innerHTML = `
     <div class="present-section">
       <div class="present-label">AIが使われていると感じる場面</div>
@@ -314,9 +314,9 @@ function renderTable() {
   empty.style.display = 'none';
   tbody.innerHTML = filtered.slice().reverse().map((r, i) => `
     <tr>
-      <td class="col-id">${esc(r.id || '')}</td>
+      <td class="col-id">${esc(r.cls || '')}組${esc(r.num || '')}番</td>
       <td class="col-name" title="${esc(r.name)}">${esc(r.name)}</td>
-      <td class="col-cls">${esc(r.grade || '')}年${esc(r.cls || '')}組</td>
+      <td class="col-cls">${esc(r.cls || '')}組</td>
       <td class="col-ai1" title="${esc(r.ai1 || '')}">${esc(r.ai1 || '—')}</td>
       <td class="col-q" title="${esc(r.idea || '')}">${esc((r.idea || '').substring(0, 35) + ((r.idea || '').length > 35 ? '…' : ''))}</td>
       <td class="col-dt">${esc(r.dt || '')}</td>
@@ -352,8 +352,8 @@ function toggleDetail(i, btn) {
 
 function exportCSV() {
   if (!gasData.length) { alert('データがありません。'); return; }
-  const header = ['出席番号','学年','クラス','番号','氏名','AI場面①','AI場面②','AI場面③','AIが進化したら','アイデア','将来の夢・職業','AIと話してみて','NACK5ビジネスアイデア','気づき（第１回授業後）','気づき（事前課題終了時点）','提出日時'];
-  const rows   = gasData.map(r => [r.id, r.grade, r.cls, r.num, r.name, r.ai1||'', r.ai2||'', r.ai3||'', r.future||'', r.idea||'', r.job||'', r.hansei||'', r.nack5||'', r.kizuki1||'', r.kizuki||'', r.dt]
+  const header = ['クラス','番号','氏名','AI場面①','AI場面②','AI場面③','AIが進化したら','アイデア','将来の夢・職業','AIと話してみて','NACK5ビジネスアイデア','気づき（第１回授業後）','気づき（事前課題終了時点）','提出日時'];
+  const rows   = gasData.map(r => [r.cls, r.num, r.name, r.ai1||'', r.ai2||'', r.ai3||'', r.future||'', r.idea||'', r.job||'', r.hansei||'', r.nack5||'', r.kizuki1||'', r.kizuki||'', r.dt]
     .map(v => `"${String(v).replace(/"/g, '""')}"`));
   const csv    = [header, ...rows].map(r => r.join(',')).join('\n');
   const blob   = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
