@@ -367,6 +367,45 @@ function exportCSV() {
   URL.revokeObjectURL(a.href);
 }
 
+// ── グループワーク ────────────────────────────────────────
+function submitGroup() {
+  const gname = document.getElementById('g-name').value.trim();
+  const idea  = document.getElementById('g-idea').value.trim();
+  const reason= document.getElementById('g-reason').value.trim();
+  const nack5 = document.getElementById('g-nack5').value.trim();
+
+  if (!gname || !idea) { alert('グループ名とアイデアを入力してください。'); return; }
+
+  const dt = new Date().toLocaleString('ja-JP');
+  const btn = document.getElementById('g-submit-btn');
+  btn.disabled = true;
+  btn.textContent = '送信中…';
+  document.getElementById('g-msg-success').style.display = 'none';
+  document.getElementById('g-msg-error').style.display   = 'none';
+
+  const params = new URLSearchParams({ action: 'group', gname, idea, reason, nack5, dt });
+  fetch(GAS_URL, { method: 'POST', body: params })
+    .then(r => r.json())
+    .then(() => {
+      document.getElementById('g-msg-success').style.display = 'block';
+    })
+    .catch(() => {
+      document.getElementById('g-msg-error').style.display = 'block';
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.textContent = '✈ 提出する';
+    });
+}
+
+function clearGroup() {
+  ['g-name','g-idea','g-reason','g-nack5'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('g-msg-success').style.display = 'none';
+  document.getElementById('g-msg-error').style.display   = 'none';
+}
+
 // ── AI分析 ───────────────────────────────────────────────
 const GROUP_COLORS = [
   { bg:'#E6F1FB', border:'#85B7EB', text:'#0C447C', cbg:'#B5D4F4', ct:'#0C447C' },
