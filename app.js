@@ -46,6 +46,9 @@ document.addEventListener('DOMContentLoaded', function () {
 // ── ローカルストレージ ───────────────────────────────────
 function loadLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch { return []; } }
 function saveLocal(d) { localStorage.setItem(LS_KEY, JSON.stringify(d)); }
+function toHankaku(el) {
+  el.value = el.value.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).replace(/[^0-9]/g, '');
+}
 function makeId(c, n) { return c + '-' + n; }
 
 // ── GASからデータ取得（JSONP） ──────────────────────────
