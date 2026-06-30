@@ -50,6 +50,7 @@ function toHankaku(el) {
   el.value = el.value.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).replace(/[^0-9]/g, '');
 }
 function makeId(c, n) { return c + '-' + n; }
+function norm(s) { return String(s).replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).trim(); }
 
 // ── GASからデータ取得（JSONP） ──────────────────────────
 function fetchFromGAS() {
@@ -133,14 +134,17 @@ async function lookupStudent() {
   if (!cls || !num) { alert('クラス・出席番号を入力してから「前回読込」を押してください。'); return; }
 
   // まずlocalStorageから検索、なければGASから取得
-  let rec = loadLocal().find(r => r.cls === cls && r.num === num);
+  let rec = loadLocal().find(r => norm(r.cls) === norm(cls) && norm(r.num) === norm(num));
   if (!rec) {
     const fetched = await fetchFromGAS();
-    rec = fetched.find(r => r.cls === cls && r.num === num);
-    // GASで見つかったらlocalStorageにもキャッシュ
+    // デバッグ：GASから取得したcls/numの一覧をコンソールに出力
+    console.log('GAS取得件数:', fetched.length);
+    console.log('検索条件 cls:', JSON.stringify(cls), 'num:', JSON.stringify(num));
+    fetched.forEach(r => console.log('GASレコード cls:', JSON.stringify(r.cls), 'num:', JSON.stringify(r.num)));
+    rec = fetched.find(r => norm(r.cls) === norm(cls) && norm(r.num) === norm(num));
     if (rec) {
       const local = loadLocal();
-      const idx = local.findIndex(r => r.cls === cls && r.num === num);
+      const idx = local.findIndex(r => norm(r.cls) === norm(cls) && norm(r.num) === norm(num));
       if (idx >= 0) local[idx] = rec; else local.push(rec);
       saveLocal(local);
     }
