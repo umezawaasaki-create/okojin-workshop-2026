@@ -127,24 +127,37 @@ function clearForm() {
 }
 
 // ── 前回読込 ─────────────────────────────────────────────
-function lookupStudent() {
-  const grade = '1';
-  const cls   = document.getElementById('f-class').value.trim();
-  const num   = document.getElementById('f-num').value.trim();
+async function lookupStudent() {
+  const cls = document.getElementById('f-class').value.trim();
+  const num = document.getElementById('f-num').value.trim();
   if (!cls || !num) { alert('クラス・出席番号を入力してから「前回読込」を押してください。'); return; }
-  const rec = loadLocal().find(r => r.cls === cls && r.num === num);
+
+  // まずlocalStorageから検索、なければGASから取得
+  let rec = loadLocal().find(r => r.cls === cls && r.num === num);
+  if (!rec) {
+    const fetched = await fetchFromGAS();
+    rec = fetched.find(r => r.cls === cls && r.num === num);
+    // GASで見つかったらlocalStorageにもキャッシュ
+    if (rec) {
+      const local = loadLocal();
+      const idx = local.findIndex(r => r.cls === cls && r.num === num);
+      if (idx >= 0) local[idx] = rec; else local.push(rec);
+      saveLocal(local);
+    }
+  }
+
   if (rec) {
     document.getElementById('f-name').value    = rec.name    || '';
     document.getElementById('f-ai1').value     = rec.ai1     || '';
     document.getElementById('f-ai2').value     = rec.ai2     || '';
     document.getElementById('f-ai3').value     = rec.ai3     || '';
     document.getElementById('f-future').value  = rec.future  || '';
-    document.getElementById('f-idea').value = rec.idea || '';
-    document.getElementById('f-job').value      = rec.job      || '';
-    document.getElementById('f-hansei').value   = rec.hansei   || '';
-    document.getElementById('f-nack5').value    = rec.nack5    || '';
-    document.getElementById('f-kizuki1').value  = rec.kizuki1  || '';
-    document.getElementById('f-kizuki').value   = rec.kizuki   || '';
+    document.getElementById('f-idea').value    = rec.idea    || '';
+    document.getElementById('f-job').value     = rec.job     || '';
+    document.getElementById('f-hansei').value  = rec.hansei  || '';
+    document.getElementById('f-nack5').value   = rec.nack5   || '';
+    document.getElementById('f-kizuki1').value = rec.kizuki1 || '';
+    document.getElementById('f-kizuki').value  = rec.kizuki  || '';
     const n  = (rec.future || '').length;
     const el = document.getElementById('char-count');
     el.textContent = n + '字';
