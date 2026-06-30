@@ -383,6 +383,8 @@ function submitGroup() {
   document.getElementById('g-msg-success').style.display = 'none';
   document.getElementById('g-msg-error').style.display   = 'none';
 
+  localStorage.setItem('group_last', JSON.stringify({ gname, idea, reason, nack5 }));
+
   const params = new URLSearchParams({ action: 'group', gname, idea, reason, nack5, dt });
   fetch(GAS_URL, { method: 'POST', body: params })
     .then(r => r.json())
@@ -396,6 +398,16 @@ function submitGroup() {
       btn.disabled = false;
       btn.textContent = '✈ 提出する';
     });
+}
+
+function loadGroup() {
+  const saved = localStorage.getItem('group_last');
+  if (!saved) { alert('保存された入力内容がありません。'); return; }
+  const d = JSON.parse(saved);
+  document.getElementById('g-name').value   = d.gname  || '';
+  document.getElementById('g-idea').value   = d.idea   || '';
+  document.getElementById('g-reason').value = d.reason || '';
+  document.getElementById('g-nack5').value  = d.nack5  || '';
 }
 
 function clearGroup() {
