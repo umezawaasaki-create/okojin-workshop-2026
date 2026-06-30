@@ -137,10 +137,6 @@ async function lookupStudent() {
   let rec = loadLocal().find(r => norm(r.cls) === norm(cls) && norm(r.num) === norm(num));
   if (!rec) {
     const fetched = await fetchFromGAS();
-    // デバッグ：GASから取得したcls/numの一覧をコンソールに出力
-    console.log('GAS取得件数:', fetched.length);
-    console.log('検索条件 cls:', JSON.stringify(cls), 'num:', JSON.stringify(num));
-    fetched.forEach(r => console.log('GASレコード cls:', JSON.stringify(r.cls), 'num:', JSON.stringify(r.num)));
     rec = fetched.find(r => norm(r.cls) === norm(cls) && norm(r.num) === norm(num));
     if (rec) {
       const local = loadLocal();
