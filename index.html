@@ -201,6 +201,7 @@
         <button class="admin-tab" onclick="showAdminTab('analysis',this)">🤖 AIへの関心分析</button>
         <button class="admin-tab" onclick="showAdminTab('dream',this)">🌟 将来の夢の傾向分析</button>
         <button class="admin-tab" onclick="showAdminTab('advice',this)">📚 授業内容アドバイス</button>
+        <button class="admin-tab" onclick="showAdminTab('check',this)">✅ 全件チェック</button>
       </div>
       <!-- 回答一覧 -->
       <div id="admin-list">
@@ -239,6 +240,15 @@
         <div id="advice-result"></div>
       </div>
 
+      <!-- 全件チェック -->
+      <div id="admin-check" style="display:none">
+        <div style="margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <button class="submit-btn" id="check-btn" onclick="runCheck()">✅ 全件チェック開始</button>
+          <span style="font-size:12px;color:#6b7280">GASから全レコードを取得し、cls+numで検索できるか確認します</span>
+        </div>
+        <div id="check-status" style="font-size:13px;color:#6b7280;margin-bottom:16px;min-height:20px"></div>
+        <div id="check-result"></div>
+      </div>
       <!-- 将来の夢の傾向分析 -->
       <div id="admin-dream" style="display:none">
         <div style="margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">

@@ -28,6 +28,7 @@ function showAdminTab(t, btn) {
   document.getElementById('admin-analysis').style.display = t === 'analysis' ? '' : 'none';
   document.getElementById('admin-dream').style.display    = t === 'dream'    ? '' : 'none';
   document.getElementById('admin-advice').style.display   = t === 'advice'   ? '' : 'none';
+  document.getElementById('admin-check').style.display    = t === 'check'    ? '' : 'none';
   if (t === 'analysis') runAnalysis();
   if (t === 'dream')    runDreamAnalysis();
   if (t === 'advice')   runAdviceAnalysis();
@@ -681,5 +682,50 @@ async function runAnalysis() {
     console.error(e);
     status.textContent = '❌ 分析に失敗しました。もう一度お試しください。（' + e.message + ')';
   }
+  btn.disabled = false;
+}
+
+// ── 全件チェック ──────────────────────────────────────────
+async function runCheck() {
+  const pw = prompt('パスワードを入力してください');
+  if (pw !== ADMIN_PW) { alert('パスワードが違います'); return; }
+
+  const btn    = document.getElementById('check-btn');
+  const status = document.getElementById('check-status');
+  const result = document.getElementById('check-result');
+  btn.disabled = true;
+  status.textContent = 'GASからデータを取得中…';
+  result.innerHTML = '';
+
+  const records = await fetchFromGAS();
+  if (!records.length) {
+    status.textContent = '❌ データが取得できませんでした。';
+    btn.disabled = false;
+    return;
+  }
+
+  let ok = 0, ng = 0;
+  const rows = records.map(r => {
+    const found = records.find(x => norm(x.cls) === norm(r.cls) && norm(x.num) === norm(r.num));
+    const pass  = !!found;
+    if (pass) ok++; else ng++;
+    return `<tr style="background:${pass ? '#f0fdf4' : '#fef2f2'}">
+      <td style="padding:6px 10px">${pass ? '✅' : '❌'}</td>
+      <td style="padding:6px 10px">${esc(r.cls)}組 ${esc(r.num)}番</td>
+      <td style="padding:6px 10px">${esc(r.name)}</td>
+      <td style="padding:6px 10px;font-size:11px;color:#6b7280">cls=${JSON.stringify(r.cls)} num=${JSON.stringify(r.num)}</td>
+    </tr>`;
+  });
+
+  status.textContent = `完了：${records.length}件中 ✅${ok}件 / ❌${ng}件`;
+  result.innerHTML = `<table style="border-collapse:collapse;width:100%;font-size:13px">
+    <thead><tr style="background:#f3f4f6">
+      <th style="padding:6px 10px;text-align:left">結果</th>
+      <th style="padding:6px 10px;text-align:left">クラス・番号</th>
+      <th style="padding:6px 10px;text-align:left">氏名</th>
+      <th style="padding:6px 10px;text-align:left">raw値</th>
+    </tr></thead>
+    <tbody>${rows.join('')}</tbody>
+  </table>`;
   btn.disabled = false;
 }
