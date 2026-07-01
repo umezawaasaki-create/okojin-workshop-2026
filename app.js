@@ -423,7 +423,7 @@ async function loadGroup() {
   if (saved) {
     const d = JSON.parse(saved);
     if (d.gname === gname) {
-      fillGroup(d); return;
+      fillGroup(d); alert('読み込みが完了しました。'); return;
     }
   }
 
@@ -443,6 +443,7 @@ async function loadGroup() {
   if (rec) {
     fillGroup(rec);
     localStorage.setItem('group_last', JSON.stringify(rec));
+    alert('読み込みが完了しました。');
   } else {
     alert('保存された入力内容がありません。');
   }
