@@ -414,10 +414,41 @@ function submitGroup() {
     });
 }
 
-function loadGroup() {
+async function loadGroup() {
+  const gname = document.getElementById('g-name').value;
+  if (!gname) { alert('グループ名を選択してから「前回読込」を押してください。'); return; }
+
+  // localStorageから検索
   const saved = localStorage.getItem('group_last');
-  if (!saved) { alert('保存された入力内容がありません。'); return; }
-  const d = JSON.parse(saved);
+  if (saved) {
+    const d = JSON.parse(saved);
+    if (d.gname === gname) {
+      fillGroup(d); return;
+    }
+  }
+
+  // GASのグループシートから取得
+  const records = await new Promise(resolve => {
+    const cbName = 'gcb' + Date.now();
+    let done = false;
+    window[cbName] = data => { done = true; resolve(Array.isArray(data) ? data : []); delete window[cbName]; };
+    const s = document.createElement('script');
+    s.src = GAS_URL + '?action=group&callback=' + cbName + '&_=' + Date.now();
+    s.onerror = () => { if (!done) { done = true; resolve([]); } };
+    document.body.appendChild(s);
+    setTimeout(() => { if (!done) { done = true; resolve([]); } }, 10000);
+  });
+
+  const rec = records.find(r => r.gname === gname);
+  if (rec) {
+    fillGroup(rec);
+    localStorage.setItem('group_last', JSON.stringify(rec));
+  } else {
+    alert('保存された入力内容がありません。');
+  }
+}
+
+function fillGroup(d) {
   document.getElementById('g-name').value   = d.gname  || '';
   document.getElementById('g-idea').value   = d.idea   || '';
   document.getElementById('g-reason').value = d.reason || '';
