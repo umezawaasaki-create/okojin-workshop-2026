@@ -687,9 +687,6 @@ async function runAnalysis() {
 
 // ── 全件チェック ──────────────────────────────────────────
 async function runCheck() {
-  const pw = prompt('パスワードを入力してください');
-  if (pw !== ADMIN_PW) { alert('パスワードが違います'); return; }
-
   const btn    = document.getElementById('check-btn');
   const status = document.getElementById('check-status');
   const result = document.getElementById('check-result');
