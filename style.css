@@ -36,6 +36,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","H
 .msg{display:none;border-radius:8px;padding:12px 16px;font-size:13px;margin-top:14px;line-height:1.6}
 .msg.success{background:#d1fae5;border:1px solid #6ee7b7;color:#065f46}
 .msg.error{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b}
+.schedule-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1.5px solid #d1d9e0;border-radius:10px;padding:12px 16px;margin-bottom:10px;flex-wrap:wrap}
+.schedule-row.taken{opacity:.6}
+.schedule-row.mine{border-color:#028090;background:#e6f7f8}
+.schedule-datetime{font-size:14px;font-weight:700;color:#1a202c}
+.schedule-status{font-size:12px;color:#6b7280;margin-top:2px}
+.schedule-row.mine .schedule-status{color:#028090;font-weight:600}
+.schedule-row-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.schedule-row-actions a.lookup-btn{text-decoration:none;display:inline-flex;align-items:center}
 .gallery-filter{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
 .gallery-search{flex:1;min-width:160px;border:1.5px solid #d1d9e0;border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit}
 .gallery-search:focus{outline:none;border-color:#028090}

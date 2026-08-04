@@ -19,6 +19,7 @@ function showTab(t, btn) {
   btn.classList.add('active');
   document.getElementById('view-' + t).classList.add('active');
   if (t === 'gallery') loadGallery();
+  if (t === 'schedule') loadSchedule();
   if (t === 'admin') {
     document.getElementById('admin-lock').style.display = 'block';
     document.getElementById('admin-content').style.display = 'none';
@@ -105,6 +106,138 @@ async function fetchFromGAS() {
   if (first !== null) return first;
   const retry = await fetchFromGASOnce(20000);
   return retry !== null ? retry : [];
+}
+
+// ── GAS汎用JSONPリクエスト（配列以外のレスポンスも扱える） ──
+function gasJsonpGetOnce(params, timeoutMs) {
+  return new Promise(function (resolve) {
+    var cbName = 'cb' + Date.now() + Math.floor(Math.random() * 100000);
+    var done = false;
+    function cleanup() {
+      try { delete window[cbName]; } catch (e) {}
+      var el = document.getElementById('jsonp-' + cbName);
+      if (el) el.parentNode.removeChild(el);
+    }
+    window[cbName] = function (data) {
+      if (done) return;
+      done = true;
+      cleanup();
+      resolve(data);
+    };
+    var qs = new URLSearchParams(params);
+    qs.set('callback', cbName);
+    qs.set('_', Date.now());
+    var s = document.createElement('script');
+    s.id = 'jsonp-' + cbName;
+    s.src = GAS_URL + '?' + qs.toString();
+    s.onerror = function () { if (!done) { done = true; cleanup(); resolve(null); } };
+    document.body.appendChild(s);
+    setTimeout(function () { if (!done) { done = true; cleanup(); resolve(null); } }, timeoutMs);
+  });
+}
+
+async function gasJsonpGet(params) {
+  const first = await gasJsonpGetOnce(params, 20000);
+  if (first !== null) return first;
+  return gasJsonpGetOnce(params, 20000);
+}
+
+// ── 梅澤先生との日程調整 ───────────────────────────────────
+let lastScheduleData = [];
+
+async function loadSchedule() {
+  document.getElementById('schedule-loading').style.display = 'block';
+  document.getElementById('schedule-list').innerHTML = '';
+  const data = await gasJsonpGet({ action: 'schedule' });
+  document.getElementById('schedule-loading').style.display = 'none';
+  lastScheduleData = Array.isArray(data) ? data : [];
+  renderScheduleList(lastScheduleData);
+}
+
+function renderScheduleList(slots) {
+  const myGroup = document.getElementById('sch-group').value;
+  const container = document.getElementById('schedule-list');
+  container.innerHTML = '';
+  slots.forEach(slot => {
+    const isMine  = !!slot.group && slot.group === myGroup;
+    const isTaken = !!slot.group && slot.group !== myGroup;
+    const row = document.createElement('div');
+    row.className = 'schedule-row' + (isMine ? ' mine' : '') + (isTaken ? ' taken' : '');
+
+    let statusText = '空き';
+    if (isMine)  statusText = `あなたのグループ（${slot.group}）が予約済み`;
+    if (isTaken) statusText = `${slot.group}グループが予約済み`;
+
+    let actionHtml = '';
+    if (!slot.group) {
+      actionHtml = `<button class="lookup-btn" onclick="bookScheduleSlot('${slot.datetime}')">エントリー</button>`;
+    } else if (isMine) {
+      actionHtml = `<button class="clear-btn" onclick="cancelScheduleSlot('${slot.datetime}')">取消</button>`;
+    }
+
+    const main = document.createElement('div');
+    const dt = document.createElement('div');
+    dt.className = 'schedule-datetime';
+    dt.textContent = slot.datetime;
+    const st = document.createElement('div');
+    st.className = 'schedule-status';
+    st.textContent = statusText;
+    main.appendChild(dt);
+    main.appendChild(st);
+
+    const actions = document.createElement('div');
+    actions.className = 'schedule-row-actions';
+    const meetLink = document.createElement('a');
+    meetLink.className = 'lookup-btn';
+    meetLink.href = slot.meet;
+    meetLink.target = '_blank';
+    meetLink.rel = 'noopener';
+    meetLink.textContent = '参加';
+    actions.appendChild(meetLink);
+    if (actionHtml) actions.insertAdjacentHTML('beforeend', actionHtml);
+
+    row.appendChild(main);
+    row.appendChild(actions);
+    container.appendChild(row);
+  });
+}
+
+function showScheduleMsg(type, text) {
+  const successEl = document.getElementById('schedule-msg-success');
+  const errorEl   = document.getElementById('schedule-msg-error');
+  successEl.style.display = 'none';
+  errorEl.style.display   = 'none';
+  const el = type === 'success' ? successEl : errorEl;
+  el.textContent = text;
+  el.style.display = 'block';
+  clearTimeout(showScheduleMsg._t);
+  showScheduleMsg._t = setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+async function bookScheduleSlot(datetime) {
+  const group = document.getElementById('sch-group').value;
+  if (!group) { showScheduleMsg('error', 'グループを選択してください。'); return; }
+  const res = await gasJsonpGet({ action: 'scheduleBook', datetime, group });
+  if (res && res.result === 'success') {
+    showScheduleMsg('success', `${datetime} にエントリーしました。`);
+  } else if (res && res.result === 'conflict') {
+    showScheduleMsg('error', `その枠はすでに${res.group}グループが予約しています。`);
+  } else {
+    showScheduleMsg('error', '通信に失敗しました。時間をおいてもう一度お試しください。');
+  }
+  loadSchedule();
+}
+
+async function cancelScheduleSlot(datetime) {
+  const group = document.getElementById('sch-group').value;
+  if (!group) { showScheduleMsg('error', 'グループを選択してください。'); return; }
+  const res = await gasJsonpGet({ action: 'scheduleCancel', datetime, group });
+  if (res && res.result === 'success') {
+    showScheduleMsg('success', '予約を取り消しました。');
+  } else {
+    showScheduleMsg('error', '通信に失敗しました。時間をおいてもう一度お試しください。');
+  }
+  loadSchedule();
 }
 
 // ── フォーム送信 ─────────────────────────────────────────

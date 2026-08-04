@@ -17,6 +17,7 @@
     <button class="tab active" onclick="showTab('student',this)">生徒フォーム</button>
     <button class="tab" onclick="showTab('gallery',this)">みんなの回答</button>
     <button class="tab" onclick="showTab('group',this)">グループワーク</button>
+    <button class="tab" onclick="showTab('schedule',this)">梅澤先生との日程調整</button>
     <button class="tab" onclick="showTab('admin',this)">管理</button>
   </div>
 
@@ -197,6 +198,36 @@
       </div>
       <div class="msg success" id="g-msg-success">✅ <strong>提出完了！</strong></div>
       <div class="msg error" id="g-msg-error">❌ 送信に失敗しました。時間をおいてもう一度お試しください。</div>
+    </div>
+  </div>
+
+  <!-- 梅澤先生との日程調整 -->
+  <div id="view-schedule" class="view">
+    <div class="card">
+      <div class="card-legend">グループを選択</div>
+      <div class="hint">エントリー・取消をする前に、あなたのグループを選んでください。</div>
+      <div class="field">
+        <select id="sch-group" onchange="renderScheduleList(lastScheduleData)">
+          <option value="">選択してください</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+          <option value="E">E</option>
+          <option value="F">F</option>
+        </select>
+      </div>
+      <div class="msg success" id="schedule-msg-success"></div>
+      <div class="msg error" id="schedule-msg-error"></div>
+    </div>
+    <div class="card">
+      <div class="card-legend">日程候補</div>
+      <div class="hint">1グループにつき1枠まで予約できます。すでに他のグループが予約した枠は選べません。</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <button class="reload-btn" onclick="loadSchedule()">↻ 更新</button>
+      </div>
+      <div id="schedule-loading" class="loading" style="display:none">読み込み中...</div>
+      <div id="schedule-list"></div>
     </div>
   </div>
 
