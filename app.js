@@ -266,6 +266,56 @@ async function cancelScheduleSlot(datetime, btn) {
   }
 }
 
+// ── 梅澤先生への問い合わせ ─────────────────────────────────
+function openContactModal() {
+  document.getElementById('c-msg-success').style.display = 'none';
+  document.getElementById('c-msg-error').style.display = 'none';
+  document.getElementById('contact-overlay').classList.add('active');
+}
+
+function closeContactModal() {
+  document.getElementById('contact-overlay').classList.remove('active');
+}
+
+function showContactMsg(type, text) {
+  const successEl = document.getElementById('c-msg-success');
+  const errorEl   = document.getElementById('c-msg-error');
+  successEl.style.display = 'none';
+  errorEl.style.display   = 'none';
+  const el = type === 'success' ? successEl : errorEl;
+  if (text) el.textContent = text;
+  el.style.display = 'block';
+}
+
+async function submitContact() {
+  const cls     = document.getElementById('c-class').value.trim();
+  const num     = document.getElementById('c-num').value.trim();
+  const name    = document.getElementById('c-name').value.trim();
+  const message = document.getElementById('c-message').value.trim();
+
+  if (!cls || !num) { showContactMsg('error', 'クラス・出席番号を入力してください。'); return; }
+  if (!name)        { showContactMsg('error', '氏名を入力してください。'); return; }
+  if (!message)     { showContactMsg('error', '問い合わせ内容を入力してください。'); return; }
+
+  const btn = document.getElementById('c-submit-btn');
+  btn.disabled = true; btn.textContent = '送信中…';
+
+  try {
+    const params = new URLSearchParams();
+    params.append('action', 'contact');
+    params.append('cls', cls);
+    params.append('num', num);
+    params.append('name', name);
+    params.append('message', message);
+    await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
+  } catch (e) { console.error(e); }
+
+  btn.disabled = false; btn.textContent = '✈ 送信する';
+  document.getElementById('c-message').value = '';
+  showContactMsg('success');
+  setTimeout(closeContactModal, 1500);
+}
+
 // ── フォーム送信 ─────────────────────────────────────────
 async function submitForm() {
   const grade    = '1';

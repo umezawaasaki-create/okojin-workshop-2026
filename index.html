@@ -9,7 +9,10 @@
 <body>
 <div class="container">
   <div class="header">
-    <div class="header-badge">Phase 0: 違和感の発見</div>
+    <div class="header-top">
+      <div class="header-badge">Phase 0: 違和感の発見</div>
+      <button class="contact-btn" onclick="openContactModal()">梅澤先生に問い合わせる</button>
+    </div>
     <h1>大高人ワークショップ 2026<br>事前課題シート</h1>
     <p>第1回ワークショップ前日までに記入・送信してください。<br>出席番号を使えば、いつでも前回の入力を読み込めます。</p>
   </div>
@@ -309,6 +312,39 @@
         <div id="dream-analysis-result"></div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- 梅澤先生への問い合わせ -->
+<div class="contact-overlay" id="contact-overlay" onclick="if(event.target===this)closeContactModal()">
+  <div class="contact-card">
+    <button class="contact-close" onclick="closeContactModal()" aria-label="閉じる">×</button>
+    <h3>梅澤先生への問い合わせ</h3>
+    <div class="id-row">
+      <div class="field"><label>クラス <span class="req">*</span></label>
+        <select id="c-class">
+          <option value="">選択</option>
+          <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
+        </select>
+      </div>
+      <div class="field"><label>出席番号 <span class="req">*</span></label>
+        <select id="c-num">
+          <option value="">選択</option>
+          <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>氏名 <span class="req">*</span></label><input type="text" id="c-name" placeholder="例：山田太郎"></div>
+    <div class="field">
+      <label>問い合わせ内容 <span class="req">*</span></label>
+      <textarea id="c-message" placeholder="質問・相談したいことを自由に書いてください。"></textarea>
+    </div>
+    <div class="btn-row">
+      <button class="submit-btn" id="c-submit-btn" onclick="submitContact()">✈ 送信する</button>
+      <button class="clear-btn" onclick="closeContactModal()">キャンセル</button>
+    </div>
+    <div class="msg success" id="c-msg-success">✅ <strong>送信しました！</strong>梅澤先生に届きます。</div>
+    <div class="msg error" id="c-msg-error">❌ 送信に失敗しました。時間をおいてもう一度お試しください。</div>
   </div>
 </div>
 
