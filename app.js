@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
     el.className = 'char-count' + (n >= 100 && n <= 200 ? ' ok' : n > 200 ? ' over' : '');
   });
   preloadGAS();
+  preloadSchedule();
 });
 
 // ── 前回読込：画面内メッセージ表示 ───────────────────────
@@ -144,11 +145,20 @@ async function gasJsonpGet(params) {
 
 // ── 梅澤先生との日程調整 ───────────────────────────────────
 let lastScheduleData = [];
+let schedulePreloadPromise = null; // ページ読込直後のバックグラウンド先読み（初回のみ使用）
+let scheduleLoadedOnce = false;
+
+function preloadSchedule() {
+  if (!schedulePreloadPromise) schedulePreloadPromise = gasJsonpGet({ action: 'schedule' });
+  return schedulePreloadPromise;
+}
 
 async function loadSchedule() {
   document.getElementById('schedule-loading').style.display = 'block';
   document.getElementById('schedule-list').innerHTML = '';
-  const data = await gasJsonpGet({ action: 'schedule' });
+  // 初回はページ読込時に先読みしておいたデータを使い、以降は毎回最新を取得する
+  const data = scheduleLoadedOnce ? await gasJsonpGet({ action: 'schedule' }) : await preloadSchedule();
+  scheduleLoadedOnce = true;
   document.getElementById('schedule-loading').style.display = 'none';
   lastScheduleData = Array.isArray(data) ? data : [];
   renderScheduleList(lastScheduleData);
@@ -170,9 +180,9 @@ function renderScheduleList(slots) {
 
     let actionHtml = '';
     if (!slot.group) {
-      actionHtml = `<button class="lookup-btn" onclick="bookScheduleSlot('${slot.datetime}')">エントリー</button>`;
+      actionHtml = `<button class="schedule-btn schedule-btn-entry" onclick="bookScheduleSlot('${slot.datetime}', this)">会議に申し込む</button>`;
     } else if (isMine) {
-      actionHtml = `<button class="clear-btn" onclick="cancelScheduleSlot('${slot.datetime}')">取消</button>`;
+      actionHtml = `<button class="clear-btn" onclick="cancelScheduleSlot('${slot.datetime}', this)">取消</button>`;
     }
 
     const main = document.createElement('div');
@@ -187,13 +197,15 @@ function renderScheduleList(slots) {
 
     const actions = document.createElement('div');
     actions.className = 'schedule-row-actions';
-    const meetLink = document.createElement('a');
-    meetLink.className = 'lookup-btn';
-    meetLink.href = slot.meet;
-    meetLink.target = '_blank';
-    meetLink.rel = 'noopener';
-    meetLink.textContent = '参加';
-    actions.appendChild(meetLink);
+    if (slot.group) {
+      const meetLink = document.createElement('a');
+      meetLink.className = 'schedule-btn schedule-btn-join';
+      meetLink.href = slot.meet;
+      meetLink.target = '_blank';
+      meetLink.rel = 'noopener';
+      meetLink.textContent = '会議に参加する';
+      actions.appendChild(meetLink);
+    }
     if (actionHtml) actions.insertAdjacentHTML('beforeend', actionHtml);
 
     row.appendChild(main);
@@ -214,30 +226,44 @@ function showScheduleMsg(type, text) {
   showScheduleMsg._t = setTimeout(() => { el.style.display = 'none'; }, 5000);
 }
 
-async function bookScheduleSlot(datetime) {
+async function bookScheduleSlot(datetime, btn) {
   const group = document.getElementById('sch-group').value;
   if (!group) { showScheduleMsg('error', 'グループを選択してください。'); return; }
+  if (btn) { btn.disabled = true; btn.textContent = '処理中…'; }
   const res = await gasJsonpGet({ action: 'scheduleBook', datetime, group });
   if (res && res.result === 'success') {
+    // サーバーへの再取得はせず、手元のデータをその場で更新して即座に表示を反映する
+    lastScheduleData.forEach(s => {
+      if (s.group === group) s.group = '';
+      if (s.datetime === datetime) s.group = group;
+    });
+    renderScheduleList(lastScheduleData);
     showScheduleMsg('success', `${datetime} にエントリーしました。`);
   } else if (res && res.result === 'conflict') {
+    const slot = lastScheduleData.find(s => s.datetime === datetime);
+    if (slot) slot.group = res.group;
+    renderScheduleList(lastScheduleData);
     showScheduleMsg('error', `その枠はすでに${res.group}グループが予約しています。`);
   } else {
+    if (btn) { btn.disabled = false; btn.textContent = '会議に申し込む'; }
     showScheduleMsg('error', '通信に失敗しました。時間をおいてもう一度お試しください。');
   }
-  loadSchedule();
 }
 
-async function cancelScheduleSlot(datetime) {
+async function cancelScheduleSlot(datetime, btn) {
   const group = document.getElementById('sch-group').value;
   if (!group) { showScheduleMsg('error', 'グループを選択してください。'); return; }
+  if (btn) { btn.disabled = true; btn.textContent = '処理中…'; }
   const res = await gasJsonpGet({ action: 'scheduleCancel', datetime, group });
   if (res && res.result === 'success') {
+    const slot = lastScheduleData.find(s => s.datetime === datetime);
+    if (slot) slot.group = '';
+    renderScheduleList(lastScheduleData);
     showScheduleMsg('success', '予約を取り消しました。');
   } else {
+    if (btn) { btn.disabled = false; btn.textContent = '取消'; }
     showScheduleMsg('error', '通信に失敗しました。時間をおいてもう一度お試しください。');
   }
-  loadSchedule();
 }
 
 // ── フォーム送信 ─────────────────────────────────────────

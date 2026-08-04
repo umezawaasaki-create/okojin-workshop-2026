@@ -43,7 +43,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","H
 .schedule-status{font-size:12px;color:#6b7280;margin-top:2px}
 .schedule-row.mine .schedule-status{color:#028090;font-weight:600}
 .schedule-row-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.schedule-row-actions a.lookup-btn{text-decoration:none;display:inline-flex;align-items:center}
+.schedule-btn{display:inline-flex;align-items:center;justify-content:center;width:140px;height:38px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;border:none;cursor:pointer;white-space:nowrap;box-sizing:border-box}
+.schedule-btn-entry{background:#2563eb;color:#fff}
+.schedule-btn-entry:hover{background:#1d4ed8}
+.schedule-btn-entry:disabled{background:#9ca3af;cursor:not-allowed}
+.schedule-btn-join{background:#059669;color:#fff}
+.schedule-btn-join:hover{background:#047857}
 .gallery-filter{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
 .gallery-search{flex:1;min-width:160px;border:1.5px solid #d1d9e0;border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit}
 .gallery-search:focus{outline:none;border-color:#028090}
