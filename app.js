@@ -90,11 +90,13 @@ async function submitForm() {
   const nack5    = document.getElementById('f-nack5').value.trim();
   const kizuki1  = document.getElementById('f-kizuki1').value.trim();
   const kizuki   = document.getElementById('f-kizuki').value.trim();
+  const stadium  = document.getElementById('f-stadium').value.trim();
 
   if (!cls || !num) { alert('クラス・出席番号を入力してください。'); return; }
   if (!name)     { alert('氏名を入力してください。'); return; }
   if (!future)   { alert('「もしAIがさらに進化したら？」を記入してください。'); return; }
   if (!idea) { alert('アイデアを記入してください。'); return; }
+  if (!stadium) { alert('スタジアム実験プラン（個人）を記入してください。'); return; }
 
   const btn = document.getElementById('submit-btn');
   btn.disabled = true; btn.textContent = '送信中…';
@@ -102,7 +104,7 @@ async function submitForm() {
   const now = new Date();
   const dt  = now.toLocaleDateString('ja-JP') + ' ' + now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
   const id  = makeId(cls, num);
-  const record = { cls, num, name, ai1, ai2, ai3, future, idea, dt, job, kizuki, hansei, nack5, kizuki1 };
+  const record = { cls, num, name, ai1, ai2, ai3, future, idea, dt, job, kizuki, hansei, nack5, kizuki1, stadium };
 
   const local = loadLocal();
   const idx   = local.findIndex(r => r.cls === cls && r.num === num);
@@ -122,7 +124,7 @@ async function submitForm() {
 
 // ── クリア ───────────────────────────────────────────────
 function clearForm() {
-  ['f-class','f-num','f-name','f-ai1','f-ai2','f-ai3','f-future','f-idea','f-job','f-hansei','f-nack5','f-kizuki1','f-kizuki']
+  ['f-class','f-num','f-name','f-ai1','f-ai2','f-ai3','f-future','f-idea','f-job','f-hansei','f-nack5','f-kizuki1','f-kizuki','f-stadium']
     .forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('char-count').textContent = '0字';
   document.getElementById('char-count').className = 'char-count';
@@ -159,6 +161,7 @@ async function lookupStudent() {
     document.getElementById('f-nack5').value   = rec.nack5   || '';
     document.getElementById('f-kizuki1').value = rec.kizuki1 || '';
     document.getElementById('f-kizuki').value  = rec.kizuki  || '';
+    document.getElementById('f-stadium').value = rec.stadium || '';
     const n  = (rec.future || '').length;
     const el = document.getElementById('char-count');
     el.textContent = n + '字';
