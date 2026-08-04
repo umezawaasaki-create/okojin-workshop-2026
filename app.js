@@ -4,6 +4,13 @@ const LS_KEY   = 'okojin_ws2026';
 let gasData     = [];
 let presentList  = [];
 let presentIndex = 0;
+let gasPreloadPromise = null;
+
+// ページ読込直後にバックグラウンドで取得しておき、「前回読込」を即時化する
+function preloadGAS() {
+  if (!gasPreloadPromise) gasPreloadPromise = fetchFromGAS();
+  return gasPreloadPromise;
+}
 
 // ── タブ切替 ────────────────────────────────────────────
 function showTab(t, btn) {
@@ -42,7 +49,21 @@ document.addEventListener('DOMContentLoaded', function () {
     el.textContent = n + '字';
     el.className = 'char-count' + (n >= 100 && n <= 200 ? ' ok' : n > 200 ? ' over' : '');
   });
+  preloadGAS();
 });
+
+// ── 前回読込：画面内メッセージ表示 ───────────────────────
+function showLookupMsg(type, text) {
+  const successEl = document.getElementById('lookup-msg-success');
+  const errorEl   = document.getElementById('lookup-msg-error');
+  successEl.style.display = 'none';
+  errorEl.style.display   = 'none';
+  const el = type === 'success' ? successEl : errorEl;
+  el.textContent = text;
+  el.style.display = 'block';
+  clearTimeout(showLookupMsg._t);
+  showLookupMsg._t = setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
 
 // ── ローカルストレージ ───────────────────────────────────
 function loadLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch { return []; } }
@@ -54,24 +75,36 @@ function makeId(c, n) { return c + '-' + n; }
 function norm(s) { return String(s).replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).trim(); }
 
 // ── GASからデータ取得（JSONP） ──────────────────────────
-function fetchFromGAS() {
+function fetchFromGASOnce(timeoutMs) {
   return new Promise(function (resolve) {
-    var cbName = 'cb' + Date.now();
+    var cbName = 'cb' + Date.now() + Math.floor(Math.random() * 100000);
     var done = false;
-    window[cbName] = function (data) {
-      done = true;
-      resolve(Array.isArray(data) ? data : []);
+    function cleanup() {
       try { delete window[cbName]; } catch (e) {}
       var el = document.getElementById('jsonp-' + cbName);
       if (el) el.parentNode.removeChild(el);
+    }
+    window[cbName] = function (data) {
+      if (done) return;
+      done = true;
+      cleanup();
+      resolve(Array.isArray(data) ? data : []);
     };
     var s = document.createElement('script');
     s.id = 'jsonp-' + cbName;
     s.src = GAS_URL + '?callback=' + cbName + '&_=' + Date.now();
-    s.onerror = function () { if (!done) { done = true; resolve([]); } };
+    s.onerror = function () { if (!done) { done = true; cleanup(); resolve(null); } };
     document.body.appendChild(s);
-    setTimeout(function () { if (!done) { done = true; resolve([]); } }, 10000);
+    setTimeout(function () { if (!done) { done = true; cleanup(); resolve(null); } }, timeoutMs);
   });
+}
+
+async function fetchFromGAS() {
+  // GAS側の応答が混雑時に遅れることがあるため、タイムアウト時は1回だけ再試行する
+  const first = await fetchFromGASOnce(20000);
+  if (first !== null) return first;
+  const retry = await fetchFromGASOnce(20000);
+  return retry !== null ? retry : [];
 }
 
 // ── フォーム送信 ─────────────────────────────────────────
@@ -134,13 +167,22 @@ function clearForm() {
 async function lookupStudent() {
   const cls = document.getElementById('f-class').value.trim();
   const num = document.getElementById('f-num').value.trim();
-  if (!cls || !num) { alert('クラス・出席番号を入力してから「前回読込」を押してください。'); return; }
+  if (!cls || !num) { showLookupMsg('error', 'クラス・出席番号を入力してから「前回読込」を押してください。'); return; }
 
-  // まずlocalStorageから検索、なければGASから取得
+  // まずlocalStorageから検索、なければ事前取得済みのGASデータ（preloadGAS）から検索
   let rec = loadLocal().find(r => norm(r.cls) === norm(cls) && norm(r.num) === norm(num));
   if (!rec) {
-    const fetched = await fetchFromGAS();
+    const btn = document.getElementById('lookup-btn');
+    const originalLabel = btn.textContent;
+    btn.disabled = true; btn.textContent = '検索中…';
+    let fetched = await preloadGAS();
     rec = fetched.find(r => norm(r.cls) === norm(cls) && norm(r.num) === norm(num));
+    if (!rec && fetched.length === 0) {
+      // プリロードが失敗していた場合のみ、改めて取得を試みる
+      fetched = await fetchFromGAS();
+      rec = fetched.find(r => norm(r.cls) === norm(cls) && norm(r.num) === norm(num));
+    }
+    btn.disabled = false; btn.textContent = originalLabel;
     if (rec) {
       const local = loadLocal();
       const idx = local.findIndex(r => norm(r.cls) === norm(cls) && norm(r.num) === norm(num));
@@ -166,9 +208,9 @@ async function lookupStudent() {
     const el = document.getElementById('char-count');
     el.textContent = n + '字';
     el.className = 'char-count' + (n >= 100 && n <= 200 ? ' ok' : n > 200 ? ' over' : '');
-    alert('前回の入力を読み込みました。編集後に再提出してください。');
+    showLookupMsg('success', `前回の入力（${rec.name || '無記名'}さん）を読み込みました。編集後に再提出してください。`);
   } else {
-    alert('入力が見つかりませんでした。新規として入力してください。');
+    showLookupMsg('error', '入力が見つかりませんでした。新規として入力してください。');
   }
 }
 

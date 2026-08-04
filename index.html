@@ -39,8 +39,10 @@
       </div>
       <div class="name-row">
         <div class="field"><label>氏名 <span class="req">*</span></label><input type="text" id="f-name" placeholder="例：山田太郎"></div>
-        <button class="lookup-btn" onclick="lookupStudent()">↩ 前回読込</button>
+        <button class="lookup-btn" id="lookup-btn" onclick="lookupStudent()">↩ 前回読込</button>
       </div>
+      <div class="msg success" id="lookup-msg-success"></div>
+      <div class="msg error" id="lookup-msg-error"></div>
     </div>
     <div class="section-divider">事前課題</div>
     <div class="card">
