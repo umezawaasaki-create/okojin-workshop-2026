@@ -197,7 +197,7 @@ function renderScheduleList(slots) {
 
     const actions = document.createElement('div');
     actions.className = 'schedule-row-actions';
-    if (slot.group) {
+    if (isMine) {
       const meetLink = document.createElement('a');
       meetLink.className = 'schedule-btn schedule-btn-join';
       meetLink.href = slot.meet;
