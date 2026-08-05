@@ -291,10 +291,12 @@ async function submitContact() {
   const cls     = document.getElementById('c-class').value.trim();
   const num     = document.getElementById('c-num').value.trim();
   const name    = document.getElementById('c-name').value.trim();
+  const email   = document.getElementById('c-email').value.trim();
   const message = document.getElementById('c-message').value.trim();
 
   if (!cls || !num) { showContactMsg('error', 'クラス・出席番号を入力してください。'); return; }
   if (!name)        { showContactMsg('error', '氏名を入力してください。'); return; }
+  if (!email || !email.includes('@')) { showContactMsg('error', 'メールアドレスを正しく入力してください。'); return; }
   if (!message)     { showContactMsg('error', '問い合わせ内容を入力してください。'); return; }
 
   const btn = document.getElementById('c-submit-btn');
@@ -306,6 +308,7 @@ async function submitContact() {
     params.append('cls', cls);
     params.append('num', num);
     params.append('name', name);
+    params.append('email', email);
     params.append('message', message);
     await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
   } catch (e) { console.error(e); }
