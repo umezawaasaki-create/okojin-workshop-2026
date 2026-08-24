@@ -21,6 +21,7 @@
     <button class="tab" onclick="showTab('gallery',this)">みんなの回答</button>
     <button class="tab" onclick="showTab('group',this)">グループワーク</button>
     <button class="tab" onclick="showTab('schedule',this)">梅澤先生との日程調整</button>
+    <button class="tab" onclick="showTab('meetings',this)">梅澤先生とのミーティング</button>
     <button class="tab" onclick="showTab('admin',this)">管理</button>
   </div>
 
@@ -210,7 +211,7 @@
       <div class="card-legend">グループを選択</div>
       <div class="hint">エントリー・取消をする前に、あなたのグループを選んでください。</div>
       <div class="field">
-        <select id="sch-group" onchange="renderScheduleList(lastScheduleData)">
+        <select id="sch-group" onchange="onScheduleGroupChange()">
           <option value="">選択してください</option>
           <option value="0">０（サンプル）</option>
           <option value="A">A</option>
@@ -232,6 +233,20 @@
       </div>
       <div id="schedule-loading" class="loading" style="display:none">読み込み中...</div>
       <div id="schedule-list"></div>
+    </div>
+  </div>
+
+  <!-- 梅澤先生とのミーティング -->
+  <div id="view-meetings" class="view">
+    <div class="card">
+      <div class="card-legend">確定したミーティング</div>
+      <div class="hint">予約が確定した日程のみ表示しています。</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <button class="reload-btn" onclick="loadMeetings()">↻ 更新</button>
+      </div>
+      <div id="meetings-loading" class="loading" style="display:none">読み込み中...</div>
+      <div id="meetings-list"></div>
+      <div id="meetings-empty" class="gallery-empty" style="display:none">まだ確定した日程がありません</div>
     </div>
   </div>
 
