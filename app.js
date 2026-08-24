@@ -20,6 +20,7 @@ function showTab(t, btn) {
   document.getElementById('view-' + t).classList.add('active');
   if (t === 'gallery') loadGallery();
   if (t === 'schedule') loadSchedule();
+  if (t === 'meetings') loadMeetings();
   if (t === 'admin') {
     document.getElementById('admin-lock').style.display = 'block';
     document.getElementById('admin-content').style.display = 'none';
@@ -52,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   preloadGAS();
   preloadSchedule();
+  restoreScheduleGroup();
 });
 
 // ── 前回読込：画面内メッセージ表示 ───────────────────────
@@ -147,10 +149,26 @@ async function gasJsonpGet(params) {
 let lastScheduleData = [];
 let schedulePreloadPromise = null; // ページ読込直後のバックグラウンド先読み（初回のみ使用）
 let scheduleLoadedOnce = false;
+const SCH_GROUP_KEY = 'okojin_ws2026_sch_group';
 
 function preloadSchedule() {
   if (!schedulePreloadPromise) schedulePreloadPromise = gasJsonpGet({ action: 'schedule' });
   return schedulePreloadPromise;
+}
+
+// 選んだグループをブラウザに記憶し、次回以降タブを開いた時に自動選択する
+// （選び直さないと予約済みの「会議に参加する」ボタンが出てこないため）
+function restoreScheduleGroup() {
+  try {
+    const saved = localStorage.getItem(SCH_GROUP_KEY);
+    if (saved) document.getElementById('sch-group').value = saved;
+  } catch (e) {}
+}
+
+function onScheduleGroupChange() {
+  const el = document.getElementById('sch-group');
+  try { localStorage.setItem(SCH_GROUP_KEY, el.value); } catch (e) {}
+  renderScheduleList(lastScheduleData);
 }
 
 async function loadSchedule() {
@@ -214,6 +232,53 @@ function renderScheduleList(slots) {
   });
 }
 
+// ── 梅澤先生とのミーティング（確定分のみ表示） ───────────────
+async function loadMeetings() {
+  document.getElementById('meetings-loading').style.display = 'block';
+  document.getElementById('meetings-list').innerHTML = '';
+  document.getElementById('meetings-empty').style.display = 'none';
+  // スケジュール取得と同じエンドポイント・先読みキャッシュを共有する
+  const data = scheduleLoadedOnce ? await gasJsonpGet({ action: 'schedule' }) : await preloadSchedule();
+  scheduleLoadedOnce = true;
+  document.getElementById('meetings-loading').style.display = 'none';
+  const confirmed = (Array.isArray(data) ? data : []).filter(s => s.group);
+  renderMeetingsList(confirmed);
+}
+
+function renderMeetingsList(slots) {
+  const container = document.getElementById('meetings-list');
+  container.innerHTML = '';
+  document.getElementById('meetings-empty').style.display = slots.length ? 'none' : 'block';
+  slots.forEach(slot => {
+    const row = document.createElement('div');
+    row.className = 'schedule-row';
+
+    const main = document.createElement('div');
+    const dt = document.createElement('div');
+    dt.className = 'schedule-datetime';
+    dt.textContent = slot.datetime;
+    const st = document.createElement('div');
+    st.className = 'schedule-status';
+    st.textContent = `${slot.group}グループ`;
+    main.appendChild(dt);
+    main.appendChild(st);
+
+    const actions = document.createElement('div');
+    actions.className = 'schedule-row-actions';
+    const meetLink = document.createElement('a');
+    meetLink.className = 'schedule-btn schedule-btn-join';
+    meetLink.href = slot.meet;
+    meetLink.target = '_blank';
+    meetLink.rel = 'noopener';
+    meetLink.textContent = '会議に参加する';
+    actions.appendChild(meetLink);
+
+    row.appendChild(main);
+    row.appendChild(actions);
+    container.appendChild(row);
+  });
+}
+
 function showScheduleMsg(type, text) {
   const successEl = document.getElementById('schedule-msg-success');
   const errorEl   = document.getElementById('schedule-msg-error');
@@ -229,6 +294,7 @@ function showScheduleMsg(type, text) {
 async function bookScheduleSlot(datetime, btn) {
   const group = document.getElementById('sch-group').value;
   if (!group) { showScheduleMsg('error', 'グループを選択してください。'); return; }
+  try { localStorage.setItem(SCH_GROUP_KEY, group); } catch (e) {}
   if (btn) { btn.disabled = true; btn.textContent = '処理中…'; }
   const res = await gasJsonpGet({ action: 'scheduleBook', datetime, group });
   if (res && res.result === 'success') {
@@ -238,7 +304,9 @@ async function bookScheduleSlot(datetime, btn) {
       if (s.datetime === datetime) s.group = group;
     });
     renderScheduleList(lastScheduleData);
-    showScheduleMsg('success', `${datetime} にエントリーしました。`);
+    const bookedSlot = lastScheduleData.find(s => s.datetime === datetime);
+    const meetUrl = bookedSlot ? bookedSlot.meet : '';
+    showScheduleMsg('success', `${datetime} にエントリーしました。当日はこの画面の「会議に参加する」から参加できます（URL: ${meetUrl}）。`);
   } else if (res && res.result === 'conflict') {
     const slot = lastScheduleData.find(s => s.datetime === datetime);
     if (slot) slot.group = res.group;
