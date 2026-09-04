@@ -22,6 +22,7 @@
     <button class="tab" onclick="showTab('group',this)">グループワーク</button>
     <button class="tab" onclick="showTab('schedule',this)">梅澤先生との日程調整</button>
     <button class="tab" onclick="showTab('meetings',this)">梅澤先生とのミーティング</button>
+    <button class="tab" onclick="showTab('presentation',this)">最終プレゼン</button>
     <button class="tab" onclick="showTab('admin',this)">管理</button>
   </div>
 
@@ -247,6 +248,54 @@
       <div id="meetings-loading" class="loading" style="display:none">読み込み中...</div>
       <div id="meetings-list"></div>
       <div id="meetings-empty" class="gallery-empty" style="display:none">まだ確定した日程がありません</div>
+    </div>
+  </div>
+
+  <!-- 最終プレゼン -->
+  <div id="view-presentation" class="view">
+    <div class="card">
+      <div class="card-legend">プレゼン資料フォーマット</div>
+      <div class="hint">9/29の最終プレゼン用フォーマットです。ダウンロードして、自分の内容に書き換えてください。</div>
+      <a class="submit-btn" style="display:inline-flex;text-decoration:none" href="assets/最終プレゼン_フォーマット.pptx" download>⬇ フォーマットをダウンロード</a>
+    </div>
+    <div class="card">
+      <div class="card-legend">プレゼン資料をアップロード</div>
+      <div class="hint">完成したパワーポイントをここから提出してください。同じクラス・出席番号で再度アップロードすると、前回の分は上書きされます。</div>
+      <div class="id-row">
+        <div class="field"><label>クラス <span class="req">*</span></label>
+          <select id="p-class">
+            <option value="">選択</option>
+            <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
+          </select>
+        </div>
+        <div class="field"><label>出席番号 <span class="req">*</span></label>
+          <select id="p-num">
+            <option value="">選択</option>
+            <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>氏名 <span class="req">*</span></label><input type="text" id="p-name" placeholder="例：山田太郎"></div>
+      <div class="field">
+        <label>ファイル（.pptx） <span class="req">*</span></label>
+        <div class="hint">ファイルサイズは20MBまでです。</div>
+        <input type="file" id="p-file" accept=".pptx,.ppt">
+      </div>
+      <div class="btn-row">
+        <button class="submit-btn" id="p-submit-btn" onclick="uploadPresentation()">⬆ アップロードする</button>
+      </div>
+      <div class="msg success" id="p-msg-success">✅ <strong>アップロード完了！</strong></div>
+      <div class="msg error" id="p-msg-error">❌ 送信に失敗しました。時間をおいてもう一度お試しください。</div>
+    </div>
+    <div class="card">
+      <div class="card-legend">提出済み一覧</div>
+      <div class="hint">プレゼン当日は、ここから自分の資料を開いて発表できます。</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <button class="reload-btn" onclick="loadPresentations()">↻ 更新</button>
+      </div>
+      <div id="presentation-loading" class="loading" style="display:none">読み込み中...</div>
+      <div id="presentation-list"></div>
+      <div id="presentation-empty" class="gallery-empty" style="display:none">まだ提出がありません</div>
     </div>
   </div>
 

@@ -21,6 +21,7 @@ function showTab(t, btn) {
   if (t === 'gallery') loadGallery();
   if (t === 'schedule') loadSchedule();
   if (t === 'meetings') loadMeetings();
+  if (t === 'presentation') loadPresentations();
   if (t === 'admin') {
     document.getElementById('admin-lock').style.display = 'block';
     document.getElementById('admin-content').style.display = 'none';
@@ -272,6 +273,118 @@ function renderMeetingsList(slots) {
     meetLink.rel = 'noopener';
     meetLink.textContent = '会議に参加する';
     actions.appendChild(meetLink);
+
+    row.appendChild(main);
+    row.appendChild(actions);
+    container.appendChild(row);
+  });
+}
+
+// ── 最終プレゼン：資料の提出・一覧 ─────────────────────────
+const PRESENTATION_MAX_BYTES = 20 * 1024 * 1024; // 20MB
+
+function showPresentationMsg(type, text) {
+  const successEl = document.getElementById('p-msg-success');
+  const errorEl   = document.getElementById('p-msg-error');
+  successEl.style.display = 'none';
+  errorEl.style.display   = 'none';
+  const el = type === 'success' ? successEl : errorEl;
+  if (text) el.textContent = text;
+  el.style.display = 'block';
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      const idx = result.indexOf(',');
+      resolve(idx >= 0 ? result.slice(idx + 1) : result);
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadPresentation() {
+  const cls  = document.getElementById('p-class').value.trim();
+  const num  = document.getElementById('p-num').value.trim();
+  const name = document.getElementById('p-name').value.trim();
+  const fileInput = document.getElementById('p-file');
+  const file = fileInput.files && fileInput.files[0];
+
+  if (!cls || !num) { showPresentationMsg('error', 'クラス・出席番号を入力してください。'); return; }
+  if (!name)        { showPresentationMsg('error', '氏名を入力してください。'); return; }
+  if (!file)        { showPresentationMsg('error', 'ファイルを選択してください。'); return; }
+  if (file.size > PRESENTATION_MAX_BYTES) {
+    showPresentationMsg('error', 'ファイルサイズが20MBを超えています。圧縮するか、画像を減らしてください。');
+    return;
+  }
+
+  const btn = document.getElementById('p-submit-btn');
+  btn.disabled = true; btn.textContent = 'アップロード中…';
+
+  try {
+    const base64 = await fileToBase64(file);
+    const params = new URLSearchParams();
+    params.append('action', 'uploadPresentation');
+    params.append('cls', cls);
+    params.append('num', num);
+    params.append('name', name);
+    params.append('filename', file.name);
+    params.append('mimeType', file.type || 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
+    params.append('fileData', base64);
+    await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
+  } catch (e) {
+    console.error(e);
+    btn.disabled = false; btn.textContent = '⬆ アップロードする';
+    showPresentationMsg('error', 'アップロードに失敗しました。時間をおいてもう一度お試しください。');
+    return;
+  }
+
+  btn.disabled = false; btn.textContent = '⬆ アップロードする';
+  fileInput.value = '';
+  showPresentationMsg('success', 'アップロードしました。下の一覧に反映されるまで少し時間がかかることがあります。');
+  setTimeout(loadPresentations, 1500);
+}
+
+async function loadPresentations() {
+  document.getElementById('presentation-loading').style.display = 'block';
+  document.getElementById('presentation-list').innerHTML = '';
+  document.getElementById('presentation-empty').style.display = 'none';
+  const data = await gasJsonpGet({ action: 'presentations' });
+  document.getElementById('presentation-loading').style.display = 'none';
+  const list = Array.isArray(data) ? data : [];
+  renderPresentationsList(list);
+}
+
+function renderPresentationsList(list) {
+  const container = document.getElementById('presentation-list');
+  container.innerHTML = '';
+  document.getElementById('presentation-empty').style.display = list.length ? 'none' : 'block';
+  list.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'schedule-row';
+
+    const main = document.createElement('div');
+    const dt = document.createElement('div');
+    dt.className = 'schedule-datetime';
+    dt.textContent = `${item.cls}組 ${item.num}番　${item.name}`;
+    const st = document.createElement('div');
+    st.className = 'schedule-status';
+    st.textContent = item.filename || '';
+    main.appendChild(dt);
+    main.appendChild(st);
+
+    const actions = document.createElement('div');
+    actions.className = 'schedule-row-actions';
+    const openLink = document.createElement('a');
+    openLink.className = 'schedule-btn schedule-btn-join';
+    openLink.href = item.url;
+    openLink.target = '_blank';
+    openLink.rel = 'noopener';
+    openLink.textContent = '開く';
+    actions.appendChild(openLink);
 
     row.appendChild(main);
     row.appendChild(actions);
