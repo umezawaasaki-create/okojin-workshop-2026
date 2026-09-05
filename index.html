@@ -16,16 +16,6 @@
     <h1>大高人ワークショップ 2026<br>事前課題シート</h1>
     <p>第1回ワークショップ前日までに記入・送信してください。<br>出席番号を使えば、いつでも前回の入力を読み込めます。</p>
   </div>
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('student',this)">生徒フォーム</button>
-    <button class="tab" onclick="showTab('gallery',this)">みんなの回答</button>
-    <button class="tab" onclick="showTab('group',this)">グループワーク</button>
-    <button class="tab" onclick="showTab('schedule',this)">梅澤先生との日程調整</button>
-    <button class="tab" onclick="showTab('meetings',this)">梅澤先生とのミーティング</button>
-    <button class="tab" onclick="showTab('presentation',this)">最終プレゼン</button>
-    <button class="tab" onclick="showTab('admin',this)">管理</button>
-  </div>
-
   <!-- 共通：クラス・出席番号・氏名（全タブ共通） -->
   <div class="card" id="identity-bar">
     <div class="card-legend">あなたの情報</div>
@@ -49,6 +39,16 @@
       <input type="text" id="my-name" placeholder="クラス・出席番号を選ぶと表示されます">
       <div class="hint" id="my-name-status"></div>
     </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('student',this)">生徒フォーム</button>
+    <button class="tab" onclick="showTab('gallery',this)">みんなの回答</button>
+    <button class="tab" onclick="showTab('group',this)">グループワーク</button>
+    <button class="tab" onclick="showTab('schedule',this)">梅澤先生との日程調整</button>
+    <button class="tab" onclick="showTab('meetings',this)">梅澤先生とのミーティング</button>
+    <button class="tab" onclick="showTab('presentation',this)">最終プレゼン</button>
+    <button class="tab" onclick="showTab('admin',this)">管理</button>
   </div>
 
   <!-- 生徒フォーム -->
