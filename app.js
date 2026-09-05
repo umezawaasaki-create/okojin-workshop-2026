@@ -363,32 +363,40 @@ function renderPresentationsList(list) {
   container.innerHTML = '';
   document.getElementById('presentation-empty').style.display = list.length ? 'none' : 'block';
   list.forEach(item => {
-    const row = document.createElement('div');
-    row.className = 'schedule-row';
+    const card = document.createElement('a');
+    card.className = 'presentation-card';
+    card.href = item.url;
+    card.target = '_blank';
+    card.rel = 'noopener';
 
-    const main = document.createElement('div');
-    const dt = document.createElement('div');
-    dt.className = 'schedule-datetime';
-    dt.textContent = `${item.cls}組 ${item.num}番　${item.name}`;
-    const st = document.createElement('div');
-    st.className = 'schedule-status';
-    st.textContent = item.filename || '';
-    main.appendChild(dt);
-    main.appendChild(st);
+    const header = document.createElement('div');
+    header.className = 'student-card-header';
+    const nameEl = document.createElement('span');
+    nameEl.className = 'student-card-name';
+    nameEl.textContent = item.name || '';
+    const idEl = document.createElement('span');
+    idEl.className = 'student-card-id';
+    idEl.textContent = `${item.cls}組 ${item.num}番`;
+    header.appendChild(nameEl);
+    header.appendChild(idEl);
 
-    const actions = document.createElement('div');
-    actions.className = 'schedule-row-actions';
-    const openLink = document.createElement('a');
-    openLink.className = 'schedule-btn schedule-btn-join';
-    openLink.href = item.url;
-    openLink.target = '_blank';
-    openLink.rel = 'noopener';
-    openLink.textContent = '開く';
-    actions.appendChild(openLink);
+    const thumb = document.createElement('div');
+    thumb.className = 'presentation-thumb';
+    if (item.thumbnail) {
+      const img = document.createElement('img');
+      img.src = item.thumbnail;
+      img.alt = item.filename || '';
+      thumb.appendChild(img);
+    } else {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'presentation-thumb-placeholder';
+      placeholder.textContent = 'PPT';
+      thumb.appendChild(placeholder);
+    }
 
-    row.appendChild(main);
-    row.appendChild(actions);
-    container.appendChild(row);
+    card.appendChild(header);
+    card.appendChild(thumb);
+    container.appendChild(card);
   });
 }
 

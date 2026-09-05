@@ -310,13 +310,27 @@ function doGet(e) {
     const sheet = ensurePresentationSheet();
     const data  = sheet.getDataRange().getValues();
     const records = data.length <= 1 ? [] : data.slice(1).map(function (row) {
+      const fileId = row[5];
+      let thumbnail = '';
+      if (fileId) {
+        try {
+          const thumb = DriveApp.getFileById(fileId).getThumbnail();
+          if (thumb) {
+            thumbnail = 'data:' + thumb.getContentType() + ';base64,' + Utilities.base64Encode(thumb.getBytes());
+          }
+        } catch (err) {
+          // アップロード直後などサムネイルがまだ生成されていない場合は空のまま返す
+          Logger.log('サムネイル取得に失敗しました: ' + err);
+        }
+      }
       return {
         cls: String(row[0] == null ? '' : row[0]),
         num: String(row[1] == null ? '' : row[1]),
         name: String(row[2] == null ? '' : row[2]),
         filename: String(row[3] == null ? '' : row[3]),
         url: String(row[4] == null ? '' : row[4]),
-        dt: String(row[6] == null ? '' : row[6])
+        dt: String(row[6] == null ? '' : row[6]),
+        thumbnail: thumbnail
       };
     });
     const json = JSON.stringify(records);
