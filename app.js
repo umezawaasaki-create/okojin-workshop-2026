@@ -12,6 +12,59 @@ function preloadGAS() {
   return gasPreloadPromise;
 }
 
+// ── 共通のクラス・出席番号・氏名（全タブで共有） ─────────────
+const IDENTITY_KEY = 'okojin_ws2026_identity';
+
+function saveIdentity() {
+  try {
+    localStorage.setItem(IDENTITY_KEY, JSON.stringify({
+      cls: document.getElementById('my-class').value,
+      num: document.getElementById('my-num').value
+    }));
+  } catch (e) {}
+}
+
+function restoreIdentity() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(IDENTITY_KEY) || 'null');
+    if (saved) {
+      document.getElementById('my-class').value = saved.cls || '';
+      document.getElementById('my-num').value = saved.num || '';
+    }
+  } catch (e) {}
+  onIdentityChange();
+}
+
+// クラス・出席番号を選んだ瞬間に、既存の回答データから氏名を自動表示する
+// （手入力させず、なりすまし・誤入力を防ぐ。まだ回答がない＝初回提出の場合だけ手入力できる）
+async function onIdentityChange() {
+  saveIdentity();
+  const cls = document.getElementById('my-class').value.trim();
+  const num = document.getElementById('my-num').value.trim();
+  const nameEl = document.getElementById('my-name');
+  const statusEl = document.getElementById('my-name-status');
+
+  if (!cls || !num) {
+    nameEl.value = '';
+    nameEl.readOnly = false;
+    statusEl.textContent = '';
+    return;
+  }
+
+  statusEl.textContent = '検索中…';
+  const records = await preloadGAS();
+  const rec = records.find(r => norm(r.cls) === norm(cls) && norm(r.num) === norm(num));
+  if (rec && rec.name) {
+    nameEl.value = rec.name;
+    nameEl.readOnly = true;
+    statusEl.textContent = '';
+  } else {
+    nameEl.value = '';
+    nameEl.readOnly = false;
+    statusEl.textContent = '初めての提出ですね。氏名を入力してください。';
+  }
+}
+
 // ── タブ切替 ────────────────────────────────────────────
 function showTab(t, btn) {
   document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
@@ -55,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
   preloadGAS();
   preloadSchedule();
   restoreScheduleGroup();
+  restoreIdentity();
 });
 
 // ── 前回読込：画面内メッセージ表示 ───────────────────────
@@ -306,37 +360,15 @@ function fileToBase64(file) {
   });
 }
 
-// クラス・出席番号を選んだ瞬間に、既存の回答データから氏名を自動表示する
-// （手入力させず、なりすまし・誤入力を防ぐため）
-async function onPresentationIdChange() {
-  const cls = document.getElementById('p-class').value.trim();
-  const num = document.getElementById('p-num').value.trim();
-  const nameEl = document.getElementById('p-name');
-  const statusEl = document.getElementById('p-name-status');
-
-  nameEl.value = '';
-  if (!cls || !num) { statusEl.textContent = ''; return; }
-
-  statusEl.textContent = '検索中…';
-  const records = await preloadGAS();
-  const rec = records.find(r => norm(r.cls) === norm(cls) && norm(r.num) === norm(num));
-  if (rec) {
-    nameEl.value = rec.name || '';
-    statusEl.textContent = '';
-  } else {
-    statusEl.textContent = '該当する回答が見つかりません。生徒フォームを先に提出してください。';
-  }
-}
-
 async function uploadPresentation() {
-  const cls  = document.getElementById('p-class').value.trim();
-  const num  = document.getElementById('p-num').value.trim();
-  const name = document.getElementById('p-name').value.trim();
+  const cls  = document.getElementById('my-class').value.trim();
+  const num  = document.getElementById('my-num').value.trim();
+  const name = document.getElementById('my-name').value.trim();
   const fileInput = document.getElementById('p-file');
   const file = fileInput.files && fileInput.files[0];
 
-  if (!cls || !num) { showPresentationMsg('error', 'クラス・出席番号を入力してください。'); return; }
-  if (!name)        { showPresentationMsg('error', '氏名が表示されていません。クラス・出席番号を確認してください。'); return; }
+  if (!cls || !num) { showPresentationMsg('error', '画面上部でクラス・出席番号を選択してください。'); return; }
+  if (!name)        { showPresentationMsg('error', '画面上部で氏名を確認してください。'); return; }
   if (!file)        { showPresentationMsg('error', 'ファイルを選択してください。'); return; }
   if (file.size > PRESENTATION_MAX_BYTES) {
     showPresentationMsg('error', 'ファイルサイズが20MBを超えています。圧縮するか、画像を減らしてください。');
@@ -481,6 +513,13 @@ async function cancelScheduleSlot(datetime, btn) {
 function openContactModal() {
   document.getElementById('c-msg-success').style.display = 'none';
   document.getElementById('c-msg-error').style.display = 'none';
+  const cls  = document.getElementById('my-class').value.trim();
+  const num  = document.getElementById('my-num').value.trim();
+  const name = document.getElementById('my-name').value.trim();
+  const display = document.getElementById('c-identity-display');
+  display.textContent = (cls && num && name)
+    ? `提出者：${cls}組 ${num}番　${name}さん`
+    : '⚠ 画面上部でクラス・出席番号・氏名を選択してから送信してください。';
   document.getElementById('contact-overlay').classList.add('active');
 }
 
@@ -499,14 +538,14 @@ function showContactMsg(type, text) {
 }
 
 async function submitContact() {
-  const cls     = document.getElementById('c-class').value.trim();
-  const num     = document.getElementById('c-num').value.trim();
-  const name    = document.getElementById('c-name').value.trim();
+  const cls     = document.getElementById('my-class').value.trim();
+  const num     = document.getElementById('my-num').value.trim();
+  const name    = document.getElementById('my-name').value.trim();
   const email   = document.getElementById('c-email').value.trim();
   const message = document.getElementById('c-message').value.trim();
 
-  if (!cls || !num) { showContactMsg('error', 'クラス・出席番号を入力してください。'); return; }
-  if (!name)        { showContactMsg('error', '氏名を入力してください。'); return; }
+  if (!cls || !num) { showContactMsg('error', '画面上部でクラス・出席番号を選択してください。'); return; }
+  if (!name)        { showContactMsg('error', '画面上部で氏名を確認してください。'); return; }
   if (!email || !email.includes('@')) { showContactMsg('error', 'メールアドレスを正しく入力してください。'); return; }
   if (!message)     { showContactMsg('error', '問い合わせ内容を入力してください。'); return; }
 
@@ -533,9 +572,9 @@ async function submitContact() {
 // ── フォーム送信 ─────────────────────────────────────────
 async function submitForm() {
   const grade    = '1';
-  const cls      = document.getElementById('f-class').value.trim();
-  const num      = document.getElementById('f-num').value.trim();
-  const name     = document.getElementById('f-name').value.trim();
+  const cls      = document.getElementById('my-class').value.trim();
+  const num      = document.getElementById('my-num').value.trim();
+  const name     = document.getElementById('my-name').value.trim();
   const ai1      = document.getElementById('f-ai1').value.trim();
   const ai2      = document.getElementById('f-ai2').value.trim();
   const ai3      = document.getElementById('f-ai3').value.trim();
@@ -548,8 +587,8 @@ async function submitForm() {
   const kizuki   = document.getElementById('f-kizuki').value.trim();
   const stadium  = document.getElementById('f-stadium').value.trim();
 
-  if (!cls || !num) { alert('クラス・出席番号を入力してください。'); return; }
-  if (!name)     { alert('氏名を入力してください。'); return; }
+  if (!cls || !num) { alert('画面上部でクラス・出席番号を選択してください。'); return; }
+  if (!name)     { alert('画面上部で氏名を確認してください。'); return; }
   if (!future)   { alert('「もしAIがさらに進化したら？」を記入してください。'); return; }
   if (!idea) { alert('アイデアを記入してください。'); return; }
   if (!stadium) { alert('スタジアム実験プラン（個人）を記入してください。'); return; }
@@ -580,7 +619,7 @@ async function submitForm() {
 
 // ── クリア ───────────────────────────────────────────────
 function clearForm() {
-  ['f-class','f-num','f-name','f-ai1','f-ai2','f-ai3','f-future','f-idea','f-job','f-hansei','f-nack5','f-kizuki1','f-kizuki','f-stadium']
+  ['f-ai1','f-ai2','f-ai3','f-future','f-idea','f-job','f-hansei','f-nack5','f-kizuki1','f-kizuki','f-stadium']
     .forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('char-count').textContent = '0字';
   document.getElementById('char-count').className = 'char-count';
@@ -588,9 +627,9 @@ function clearForm() {
 
 // ── 前回読込 ─────────────────────────────────────────────
 async function lookupStudent() {
-  const cls = document.getElementById('f-class').value.trim();
-  const num = document.getElementById('f-num').value.trim();
-  if (!cls || !num) { showLookupMsg('error', 'クラス・出席番号を入力してから「前回読込」を押してください。'); return; }
+  const cls = document.getElementById('my-class').value.trim();
+  const num = document.getElementById('my-num').value.trim();
+  if (!cls || !num) { showLookupMsg('error', '画面上部でクラス・出席番号を選択してから「前回読込」を押してください。'); return; }
 
   // まずlocalStorageから検索、なければ事前取得済みのGASデータ（preloadGAS）から検索
   let rec = loadLocal().find(r => norm(r.cls) === norm(cls) && norm(r.num) === norm(num));
@@ -615,7 +654,7 @@ async function lookupStudent() {
   }
 
   if (rec) {
-    document.getElementById('f-name').value    = rec.name    || '';
+    document.getElementById('my-name').value   = rec.name    || '';
     document.getElementById('f-ai1').value     = rec.ai1     || '';
     document.getElementById('f-ai2').value     = rec.ai2     || '';
     document.getElementById('f-ai3').value     = rec.ai3     || '';
