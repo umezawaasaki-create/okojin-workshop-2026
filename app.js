@@ -306,6 +306,28 @@ function fileToBase64(file) {
   });
 }
 
+// クラス・出席番号を選んだ瞬間に、既存の回答データから氏名を自動表示する
+// （手入力させず、なりすまし・誤入力を防ぐため）
+async function onPresentationIdChange() {
+  const cls = document.getElementById('p-class').value.trim();
+  const num = document.getElementById('p-num').value.trim();
+  const nameEl = document.getElementById('p-name');
+  const statusEl = document.getElementById('p-name-status');
+
+  nameEl.value = '';
+  if (!cls || !num) { statusEl.textContent = ''; return; }
+
+  statusEl.textContent = '検索中…';
+  const records = await preloadGAS();
+  const rec = records.find(r => norm(r.cls) === norm(cls) && norm(r.num) === norm(num));
+  if (rec) {
+    nameEl.value = rec.name || '';
+    statusEl.textContent = '';
+  } else {
+    statusEl.textContent = '該当する回答が見つかりません。生徒フォームを先に提出してください。';
+  }
+}
+
 async function uploadPresentation() {
   const cls  = document.getElementById('p-class').value.trim();
   const num  = document.getElementById('p-num').value.trim();
@@ -314,7 +336,7 @@ async function uploadPresentation() {
   const file = fileInput.files && fileInput.files[0];
 
   if (!cls || !num) { showPresentationMsg('error', 'クラス・出席番号を入力してください。'); return; }
-  if (!name)        { showPresentationMsg('error', '氏名を入力してください。'); return; }
+  if (!name)        { showPresentationMsg('error', '氏名が表示されていません。クラス・出席番号を確認してください。'); return; }
   if (!file)        { showPresentationMsg('error', 'ファイルを選択してください。'); return; }
   if (file.size > PRESENTATION_MAX_BYTES) {
     showPresentationMsg('error', 'ファイルサイズが20MBを超えています。圧縮するか、画像を減らしてください。');

@@ -28,6 +28,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","H
 .field .hint{font-size:11px;color:#6b7280;margin-bottom:6px;line-height:1.6}
 .field input[type="text"],.field textarea{width:100%;border:1.5px solid #d1d9e0;border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;color:#1a202c;background:#fff;transition:border-color .15s,box-shadow .15s;resize:vertical}
 .field input[type="text"]:focus,.field textarea:focus{outline:none;border-color:#028090;box-shadow:0 0 0 3px rgba(2,128,144,.12)}
+.field input[type="text"][readonly]{background:#f3f4f6;color:#374151;cursor:default}
 .field textarea{min-height:90px}
 .char-count{text-align:right;font-size:11px;color:#9ca3af;margin-top:4px}
 .char-count.ok{color:#2da44e}.char-count.over{color:#e53e3e}
@@ -75,6 +76,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","H
 .student-card-id{font-size:11px;color:rgba(255,255,255,.65)}
 .student-card-body{padding:14px 16px}
 .card-section{margin-bottom:10px}.card-section:last-child{margin-bottom:0}
+.presentation-card{background:#fff;border:1.5px solid #d1d9e0;border-radius:12px;overflow:hidden;cursor:pointer;transition:box-shadow .15s,transform .15s;display:block;text-decoration:none;color:inherit}
+.presentation-card:hover{box-shadow:0 6px 18px rgba(30,39,97,.14);transform:translateY(-2px)}
+.presentation-thumb{aspect-ratio:4/3;background:#f0f4f8;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.presentation-thumb img{width:100%;height:100%;object-fit:contain}
+.presentation-thumb-placeholder{font-size:13px;color:#9ca3af;font-weight:700;letter-spacing:.05em}
 .card-section-label{font-size:10px;font-weight:700;letter-spacing:.05em;color:#028090;margin-bottom:4px}
 .card-section-text{font-size:12px;color:#374151;line-height:1.6}
 .ai-tags{display:flex;flex-wrap:wrap;gap:4px}
