@@ -39,6 +39,10 @@
       <input type="text" id="my-name" placeholder="クラス・出席番号を選ぶと表示されます">
       <div class="hint" id="my-name-status"></div>
     </div>
+    <div class="hint">以前提出したことがあれば、下のボタンで前回の回答を呼び出せます。</div>
+    <button class="lookup-btn" id="lookup-btn" onclick="lookupStudent()">↩ 前回読込</button>
+    <div class="msg success" id="lookup-msg-success"></div>
+    <div class="msg error" id="lookup-msg-error"></div>
   </div>
 
   <div class="tabs">
@@ -53,12 +57,6 @@
 
   <!-- 生徒フォーム -->
   <div id="view-student" class="view active">
-    <div class="card">
-      <div class="hint">以前提出したことがあれば、下のボタンで前回の回答を呼び出せます。</div>
-      <button class="lookup-btn" id="lookup-btn" onclick="lookupStudent()">↩ 前回読込</button>
-      <div class="msg success" id="lookup-msg-success"></div>
-      <div class="msg error" id="lookup-msg-error"></div>
-    </div>
     <div class="section-divider">事前課題</div>
     <div class="card">
       <div class="card-legend">広げる（Diverge）</div>
