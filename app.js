@@ -378,6 +378,7 @@ async function uploadPresentation() {
   const btn = document.getElementById('p-submit-btn');
   btn.disabled = true; btn.textContent = 'アップロード中…';
 
+  let result = null;
   try {
     const base64 = await fileToBase64(file);
     const params = new URLSearchParams();
@@ -388,7 +389,9 @@ async function uploadPresentation() {
     params.append('filename', file.name);
     params.append('mimeType', file.type || 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
     params.append('fileData', base64);
-    await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
+    // no-corsだとエラー内容が読めないため、通常のfetchで応答を確認する
+    const res = await fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
+    result = await res.json();
   } catch (e) {
     console.error(e);
     btn.disabled = false; btn.textContent = '⬆ アップロードする';
@@ -397,9 +400,14 @@ async function uploadPresentation() {
   }
 
   btn.disabled = false; btn.textContent = '⬆ アップロードする';
-  fileInput.value = '';
-  showPresentationMsg('success', 'アップロードしました。下の一覧に反映されるまで少し時間がかかることがあります。');
-  setTimeout(loadPresentations, 1500);
+
+  if (result && result.result === 'success') {
+    fileInput.value = '';
+    showPresentationMsg('success', 'アップロードしました。下の一覧に反映されるまで少し時間がかかることがあります。');
+    setTimeout(loadPresentations, 1500);
+  } else {
+    showPresentationMsg('error', 'アップロードに失敗しました：' + (result && result.message ? result.message : '不明なエラー'));
+  }
 }
 
 async function loadPresentations() {

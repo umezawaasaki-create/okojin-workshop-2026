@@ -2,8 +2,8 @@
 // GASエディタ → プロジェクトの設定 → スクリプトプロパティ
 //   キー: CLAUDE_API_KEY  値: sk-ant-api03-...（実際のキー）
 
-const KEYS         = ['cls','num','name','ai1','ai2','ai3','future','idea','dt','job','kizuki','hansei','nack5','kizuki1','stadium'];
-const HEADER       = ['クラス','番号','氏名','AI場面①','AI場面②','AI場面③','AIが進化したら','アイデア','提出日時','将来の夢・職業','気づき（事前課題終了時点）','AIと話してみて','NACK5ビジネスアイデア','気づき（第１回授業後）','スタジアム実験プラン（個人）'];
+const KEYS         = ['cls','num','name','ai1','ai2','ai3','future','idea','dt','job','kizuki','hansei','nack5','kizuki1','stadium','presentationUrl'];
+const HEADER       = ['クラス','番号','氏名','AI場面①','AI場面②','AI場面③','AIが進化したら','アイデア','提出日時','将来の夢・職業','気づき（事前課題終了時点）','AIと話してみて','NACK5ビジネスアイデア','気づき（第１回授業後）','スタジアム実験プラン（個人）','プレゼン資料'];
 const GROUP_KEYS   = ['gname','idea','reason','nack5','dt'];
 const GROUP_HEADER = ['グループ名','選んだアイデア','選んだ理由','NACK5見学で確かめたいこと','提出日時'];
 
@@ -99,45 +99,82 @@ function doPost(e) {
 
   // 最終プレゼン資料の提出
   if (p.action === 'uploadPresentation') {
-    const cls = p.cls || '';
-    const num = p.num || '';
-    const name = p.name || '';
-    const filename = p.filename || 'presentation.pptx';
-    const mimeType = p.mimeType || 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+    try {
+      const cls = p.cls || '';
+      const num = p.num || '';
+      const name = p.name || '';
+      const filename = p.filename || 'presentation.pptx';
+      const mimeType = p.mimeType || 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
 
-    const sheet = ensurePresentationSheet();
-    const data = sheet.getDataRange().getValues();
-    let targetRow = -1;
-    for (let i = 1; i < data.length; i++) {
-      if (String(data[i][0]) === cls && String(data[i][1]) === num) { targetRow = i + 1; break; }
-    }
+      if (!p.fileData) {
+        throw new Error('ファイルデータが送信されていません（fileDataが空です）');
+      }
 
-    // 既に提出済みなら、古いファイルは破棄してから新しいファイルに差し替える
-    if (targetRow > 0) {
-      const oldFileId = data[targetRow - 1][5];
-      if (oldFileId) {
-        try { DriveApp.getFileById(oldFileId).setTrashed(true); } catch (err) {
-          Logger.log('古いファイルの削除に失敗しました: ' + err);
+      const sheet = ensurePresentationSheet();
+      const data = sheet.getDataRange().getValues();
+      let targetRow = -1;
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]) === cls && String(data[i][1]) === num) { targetRow = i + 1; break; }
+      }
+
+      // 既に提出済みなら、古いファイルは破棄してから新しいファイルに差し替える
+      if (targetRow > 0) {
+        const oldFileId = data[targetRow - 1][5];
+        if (oldFileId) {
+          try { DriveApp.getFileById(oldFileId).setTrashed(true); } catch (err) {
+            Logger.log('古いファイルの削除に失敗しました: ' + err);
+          }
         }
       }
+
+      const bytes = Utilities.base64Decode(p.fileData);
+      const blob = Utilities.newBlob(bytes, mimeType, filename);
+      const folder = ensurePresentationFolder();
+      const file = folder.createFile(blob);
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+      const row = [cls, num, name, filename, file.getUrl(), file.getId(), new Date().toLocaleString('ja-JP')];
+      if (targetRow > 0) {
+        sheet.getRange(targetRow, 1, 1, row.length).setValues([row]);
+      } else {
+        sheet.appendRow(row);
+      }
+
+      // 既存の「回答」シートにも、プレゼン資料を開けるリンクを1列反映する
+      try {
+        const mainSheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+        if (mainSheet.getLastRow() > 0) {
+          const lastCol = mainSheet.getLastColumn();
+          if (lastCol < HEADER.length) {
+            mainSheet.getRange(1, lastCol + 1, 1, HEADER.length - lastCol)
+                     .setValues([HEADER.slice(lastCol)]);
+          }
+          const mainData = mainSheet.getDataRange().getValues();
+          let mainRow = -1;
+          for (let i = 1; i < mainData.length; i++) {
+            if (String(mainData[i][0]) === cls && String(mainData[i][1]) === num) { mainRow = i + 1; break; }
+          }
+          if (mainRow > 0) {
+            const col = KEYS.indexOf('presentationUrl') + 1;
+            mainSheet.getRange(mainRow, col).setFormula('=HYPERLINK("' + file.getUrl() + '","開く")');
+          }
+        }
+      } catch (err) {
+        // 回答シートへの反映に失敗しても、提出自体は成功として扱う
+        Logger.log('回答シートへのプレゼン資料リンク反映に失敗しました: ' + err);
+      }
+
+      return ContentService
+        .createTextOutput(JSON.stringify({ result: 'success', url: file.getUrl() }))
+        .setMimeType(ContentService.MimeType.JSON);
+
+    } catch (err) {
+      // ここで捕まえてJSONで返すことで、アプリ画面にエラー内容を表示できるようにする
+      Logger.log('プレゼン資料のアップロードに失敗しました: ' + err);
+      return ContentService
+        .createTextOutput(JSON.stringify({ result: 'error', message: String(err) }))
+        .setMimeType(ContentService.MimeType.JSON);
     }
-
-    const bytes = Utilities.base64Decode(p.fileData);
-    const blob = Utilities.newBlob(bytes, mimeType, filename);
-    const folder = ensurePresentationFolder();
-    const file = folder.createFile(blob);
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-
-    const row = [cls, num, name, filename, file.getUrl(), file.getId(), new Date().toLocaleString('ja-JP')];
-    if (targetRow > 0) {
-      sheet.getRange(targetRow, 1, 1, row.length).setValues([row]);
-    } else {
-      sheet.appendRow(row);
-    }
-
-    return ContentService
-      .createTextOutput(JSON.stringify({ result: 'success', url: file.getUrl() }))
-      .setMimeType(ContentService.MimeType.JSON);
   }
 
   // グループワーク送信
