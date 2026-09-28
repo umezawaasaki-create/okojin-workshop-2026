@@ -455,6 +455,14 @@ function buildPresentationCard(item) {
     const img = document.createElement('img');
     img.src = item.thumbnail;
     img.alt = item.filename || '';
+    // サムネイル画像の読み込みに失敗した場合は「PPT」のプレースホルダーに差し替える
+    img.onerror = function () {
+      thumb.innerHTML = '';
+      const placeholder = document.createElement('div');
+      placeholder.className = 'presentation-thumb-placeholder';
+      placeholder.textContent = 'PPT';
+      thumb.appendChild(placeholder);
+    };
     thumb.appendChild(img);
   } else {
     const placeholder = document.createElement('div');
