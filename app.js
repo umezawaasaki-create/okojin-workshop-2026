@@ -420,45 +420,80 @@ async function loadPresentations() {
   renderPresentationsList(list);
 }
 
+// クラス・出席番号 → グループ の対応表（生徒名簿+グループ.pdf より）
+const STUDENT_GROUP_MAP = {
+  '1-24': 'A', '1-29': 'A', '1-40': 'A', '3-21': 'A',
+  '2-4': 'F', '2-5': 'F', '2-22': 'F',
+  '3-33': 'B', '4-30': 'B', '4-37': 'B', '5-9': 'B',
+  '5-6': 'C', '5-8': 'C', '5-30': 'C', '6-4': 'C',
+  '6-7': 'D', '6-8': 'D', '6-15': 'D', '6-24': 'D',
+  '7-33': 'E', '9-20': 'E', '9-27': 'E', '9-37': 'E'
+};
+const GROUP_ORDER = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+function buildPresentationCard(item) {
+  const card = document.createElement('a');
+  card.className = 'presentation-card';
+  card.href = item.url;
+  card.target = '_blank';
+  card.rel = 'noopener';
+
+  const header = document.createElement('div');
+  header.className = 'student-card-header';
+  const nameEl = document.createElement('span');
+  nameEl.className = 'student-card-name';
+  nameEl.textContent = item.name || '';
+  const idEl = document.createElement('span');
+  idEl.className = 'student-card-id';
+  idEl.textContent = `${item.cls}組 ${item.num}番`;
+  header.appendChild(nameEl);
+  header.appendChild(idEl);
+
+  const thumb = document.createElement('div');
+  thumb.className = 'presentation-thumb';
+  if (item.thumbnail) {
+    const img = document.createElement('img');
+    img.src = item.thumbnail;
+    img.alt = item.filename || '';
+    thumb.appendChild(img);
+  } else {
+    const placeholder = document.createElement('div');
+    placeholder.className = 'presentation-thumb-placeholder';
+    placeholder.textContent = 'PPT';
+    thumb.appendChild(placeholder);
+  }
+
+  card.appendChild(header);
+  card.appendChild(thumb);
+  return card;
+}
+
 function renderPresentationsList(list) {
   const container = document.getElementById('presentation-list');
+  container.className = '';
   container.innerHTML = '';
   document.getElementById('presentation-empty').style.display = list.length ? 'none' : 'block';
+
+  const byGroup = {};
   list.forEach(item => {
-    const card = document.createElement('a');
-    card.className = 'presentation-card';
-    card.href = item.url;
-    card.target = '_blank';
-    card.rel = 'noopener';
+    const key = `${norm(item.cls)}-${norm(item.num)}`;
+    const g = STUDENT_GROUP_MAP[key] || 'グループ未設定';
+    if (!byGroup[g]) byGroup[g] = [];
+    byGroup[g].push(item);
+  });
 
-    const header = document.createElement('div');
-    header.className = 'student-card-header';
-    const nameEl = document.createElement('span');
-    nameEl.className = 'student-card-name';
-    nameEl.textContent = item.name || '';
-    const idEl = document.createElement('span');
-    idEl.className = 'student-card-id';
-    idEl.textContent = `${item.cls}組 ${item.num}番`;
-    header.appendChild(nameEl);
-    header.appendChild(idEl);
+  const orderedGroups = [...GROUP_ORDER, 'グループ未設定'].filter(g => byGroup[g] && byGroup[g].length);
 
-    const thumb = document.createElement('div');
-    thumb.className = 'presentation-thumb';
-    if (item.thumbnail) {
-      const img = document.createElement('img');
-      img.src = item.thumbnail;
-      img.alt = item.filename || '';
-      thumb.appendChild(img);
-    } else {
-      const placeholder = document.createElement('div');
-      placeholder.className = 'presentation-thumb-placeholder';
-      placeholder.textContent = 'PPT';
-      thumb.appendChild(placeholder);
-    }
+  orderedGroups.forEach(g => {
+    const heading = document.createElement('div');
+    heading.className = 'section-divider';
+    heading.textContent = g === 'グループ未設定' ? g : `グループ ${g}`;
+    container.appendChild(heading);
 
-    card.appendChild(header);
-    card.appendChild(thumb);
-    container.appendChild(card);
+    const grid = document.createElement('div');
+    grid.className = 'gallery-grid';
+    byGroup[g].forEach(item => grid.appendChild(buildPresentationCard(item)));
+    container.appendChild(grid);
   });
 }
 
